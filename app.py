@@ -21,72 +21,80 @@ from textblob import TextBlob
 from google import genai
 from google.genai import types
 
+# ----------------- PAGE CONFIGURATION -----------------
 st.set_page_config(
-    page_title="VeritasLens™ | Autonomous Neural News Intelligence",
+    page_title="VeritasLens™ | Autonomous Neural Intelligence",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Cyber Glassmorphism & High-Contrast Typography
+# ----------------- ULTRA CYBER-GLASSMORPHIC CSS STYLING -----------------
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
     
-    html, body, [class*="css"] {
+    * {
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
-    /* Global App Background Accents */
+    /* Background Ambient Gradients */
     .stApp {
-        background: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.04) 0%, transparent 40%);
+        background-color: #080b11;
+        background-image: 
+            radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
     }
 
-    /* Hero Header */
+    /* Hero Branding Header */
     .hero-container {
-        padding: 8px 0 22px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        margin-bottom: 24px;
+        padding: 10px 0 24px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 26px;
     }
     .hero-title {
-        font-size: 40px;
+        font-size: 42px;
         font-weight: 800;
-        letter-spacing: -1px;
-        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+        letter-spacing: -1.2px;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 40%, #c084fc 75%, #f472b6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 4px;
+        display: inline-block;
     }
     .hero-subtitle {
         font-size: 14px;
         color: #94a3b8;
         font-weight: 500;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+        letter-spacing: 0.2px;
     }
+    
     .author-badge {
         display: inline-flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
         font-size: 12px;
         color: #e2e8f0;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 7px 16px;
-        border-radius: 12px;
-        backdrop-filter: blur(12px);
+        padding: 8px 18px;
+        border-radius: 9999px;
+        backdrop-filter: blur(16px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
     
-    /* Sidebar Redesign: Command Center UI */
+    /* Command Hub Sidebar */
     .sidebar-brand-hub {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.4));
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.4));
         border: 1px solid rgba(148, 163, 184, 0.15);
-        border-radius: 16px;
-        padding: 18px;
+        border-radius: 18px;
+        padding: 20px 18px;
         margin-bottom: 20px;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(16px);
+        box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(20px);
         position: relative;
         overflow: hidden;
     }
@@ -112,7 +120,7 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.25);
         padding: 4px 12px;
         border-radius: 20px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
         text-transform: uppercase;
     }
     .beacon-glow {
@@ -120,75 +128,89 @@ st.markdown("""
         height: 7px;
         border-radius: 50%;
         background-color: #38bdf8;
-        box-shadow: 0 0 10px #38bdf8;
+        box-shadow: 0 0 12px #38bdf8;
         animation: pulseAnimation 2s infinite ease-in-out;
     }
     @keyframes pulseAnimation {
         0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.3); opacity: 0.6; }
+        50% { transform: scale(1.35); opacity: 0.5; }
     }
 
     .pipeline-node {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 12px 14px;
+        border-radius: 14px;
+        padding: 14px 16px;
         margin-bottom: 10px;
         transition: all 0.25s ease;
     }
     .pipeline-node:hover {
         border-color: rgba(129, 140, 248, 0.4);
         background: rgba(129, 140, 248, 0.04);
-        transform: translateY(-1px);
+        transform: translateX(2px);
     }
 
-    /* Dynamic Verdict Cards */
+    /* High-Impact Verdict Banners */
     .verdict-banner {
-        padding: 24px 30px;
-        border-radius: 18px;
+        padding: 24px 32px;
+        border-radius: 20px;
         font-weight: 800;
-        font-size: 22px;
+        font-size: 24px;
         text-align: center;
         letter-spacing: 0.5px;
         margin-bottom: 24px;
-        backdrop-filter: blur(16px);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+    .verdict-banner::after {
+        content: "";
+        position: absolute;
+        top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        animation: sweep 4s infinite;
+    }
+    @keyframes sweep {
+        0% { left: -100%; }
+        50%, 100% { left: 150%; }
     }
     .verdict-genuine {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.08));
-        border: 1px solid rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(5, 150, 105, 0.06));
+        border: 1px solid rgba(16, 185, 129, 0.45);
         color: #34d399;
-        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.18);
     }
     .verdict-fake {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(185, 28, 28, 0.08));
-        border: 1px solid rgba(239, 68, 68, 0.4);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(185, 28, 28, 0.06));
+        border: 1px solid rgba(239, 68, 68, 0.45);
         color: #f87171;
-        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.15);
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.18);
     }
     .verdict-sensational {
-        background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(194, 65, 12, 0.08));
-        border: 1px solid rgba(249, 115, 22, 0.4);
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(194, 65, 12, 0.06));
+        border: 1px solid rgba(249, 115, 22, 0.45);
         color: #fb923c;
-        box-shadow: 0 10px 40px rgba(249, 115, 22, 0.15);
+        box-shadow: 0 10px 40px rgba(249, 115, 22, 0.18);
     }
 
-    /* Telemetry HUD Cards */
+    /* Telemetry HUD Cards with Visual Meters */
     .metric-hud-box {
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 16px;
-        padding: 18px 14px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 18px 16px;
         text-align: center;
         margin-bottom: 12px;
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        transition: transform 0.25s ease, border-color 0.25s ease;
     }
     .metric-hud-box:hover {
-        border-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.18);
         transform: translateY(-2px);
     }
     .metric-val {
-        font-size: 30px;
+        font-size: 32px;
         font-weight: 800;
+        font-family: 'JetBrains Mono', monospace;
         color: #f8fafc;
         margin-bottom: 2px;
     }
@@ -196,42 +218,55 @@ st.markdown("""
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.7px;
+        letter-spacing: 0.8px;
         color: #94a3b8;
+        margin-bottom: 10px;
+    }
+    .meter-bar-bg {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .meter-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.8s ease-in-out;
     }
 
-    /* Claim & Entity Cards */
+    /* Structured Forensic Cards */
     .claim-item {
-        background: rgba(56, 189, 248, 0.04);
+        background: rgba(56, 189, 248, 0.03);
         border: 1px solid rgba(56, 189, 248, 0.18);
         border-left: 4px solid #38bdf8;
         padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
+        border-radius: 0 14px 14px 0;
         margin-bottom: 10px;
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.55;
     }
     .source-item {
-        background: rgba(16, 185, 129, 0.04);
+        background: rgba(16, 185, 129, 0.03);
         border: 1px solid rgba(16, 185, 129, 0.18);
         border-left: 4px solid #10b981;
         padding: 12px 16px;
-        border-radius: 0 10px 10px 0;
+        border-radius: 0 12px 12px 0;
         margin-bottom: 8px;
         font-size: 13px;
     }
     .bias-pill {
-        background: rgba(245, 158, 11, 0.05);
-        border: 1px solid rgba(245, 158, 11, 0.2);
+        background: rgba(245, 158, 11, 0.04);
+        border: 1px solid rgba(245, 158, 11, 0.18);
         border-left: 4px solid #f59e0b;
         padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
+        border-radius: 0 14px 14px 0;
         margin-bottom: 12px;
     }
     .token-chip {
         display: inline-block;
-        padding: 5px 12px;
-        border-radius: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
         font-size: 12px;
         font-weight: 700;
         font-family: 'JetBrains Mono', monospace;
@@ -243,12 +278,23 @@ st.markdown("""
     .highlight-manipulation {
         background-color: rgba(239, 68, 68, 0.25);
         border-bottom: 2px solid #ef4444;
-        padding: 2px 5px;
+        padding: 2px 6px;
         border-radius: 4px;
         font-weight: 600;
     }
 
-    /* Refined Footer */
+    /* Sub-Header Section Styling */
+    .section-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin: 20px 0 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Executive Footer */
     .neural-footer {
         margin-top: 50px;
         padding: 22px 24px;
@@ -276,7 +322,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# State initialization
+# ----------------- SESSION STATE & INITIALIZATION -----------------
 if "article_title" not in st.session_state:
     st.session_state.article_title = ""
 if "article_body" not in st.session_state:
@@ -361,7 +407,7 @@ def execute_grounded_forensics(headline, body, key):
       "rhetorical_distortion_pct": <integer 0-100>,
       "clickbait_sensationalism_pct": <integer 0-100>,
       "verdict_summary": "<2-3 sentence clear explanation citing real-world verification findings>",
-      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. media of or publisher reporting this, verified>"],
+      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. institution media of or publisher reporting this, verified>"],
       "atomic_claims": [
         {{
           "claim": "<Core 1 Claim>",
@@ -412,19 +458,19 @@ def highlight_manipulative_phrases(text, phrases):
         highlighted = pattern.sub(r'<span class="highlight-manipulation">\1</span>', highlighted)
     return highlighted
 
-# ----------------- SIDEBAR: COMMAND CENTER REDESIGN -----------------
+# ----------------- SIDEBAR: REDESIGNED COMMAND HUB -----------------
 with st.sidebar:
-    # Sleek Brand Card with Cyber Neon Beacon
+    # Modern Glassmorphic Brand Card
     st.markdown("""
     <div class="sidebar-brand-hub">
         <div class="status-beacon">
             <div class="beacon-glow"></div>
             Neural Core Online
         </div>
-        <div style="font-size:18px; font-weight:800; color:#f8fafc; letter-spacing:-0.3px;">VeritasLens™</div>
+        <div style="font-size:20px; font-weight:800; color:#f8fafc; letter-spacing:-0.5px;">VeritasLens™</div>
         <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Class 11 Computer Science</div>
         <div style="font-size:11px; color:#38bdf8; font-weight:600; margin-top:4px;">🏫 Sree Gokulam Public School, Chengalpattu</div>
-        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,0.08);">
+        <hr style="margin:14px 0; border:none; border-top:1px solid rgba(255,255,255,0.08);">
         <div style="font-size:12px; color:#e2e8f0;">
             👑 <strong>Lead Architect:</strong> <span style="color:#818cf8; font-weight:700;">DHANVANTH CR</span>
         </div>
@@ -434,11 +480,11 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### ⚡ Live Telemetry Vector")
+    st.markdown("### ⚡ Live Telemetry Vectors")
     st.markdown("""
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:16px;">🌐</span>
+            <span style="font-size:18px;">🌐</span>
             <div>
                 <strong style="color:#38bdf8; font-size:13px;">Live Web Grounding</strong><br>
                 <small style="color:#94a3b8;">Queries global news indexes in real time.</small>
@@ -447,16 +493,16 @@ with st.sidebar:
     </div>
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:16px;">🧠</span>
+            <span style="font-size:18px;">🧠</span>
             <div>
                 <strong style="color:#818cf8; font-size:13px;">Neural Claim Entailment</strong><br>
-                <small style="color:#94a3b8;">Decomposes & validates atomic facts.</small>
+                <small style="color:#94a3b8;">Decomposes & validates atomic assertions.</small>
             </div>
         </div>
     </div>
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:16px;">🎯</span>
+            <span style="font-size:18px;">🎯</span>
             <div>
                 <strong style="color:#c084fc; font-size:13px;">Cognitive Bias Radar</strong><br>
                 <small style="color:#94a3b8;">Exposes logical fallacies & clickbait.</small>
@@ -612,13 +658,16 @@ if execute_audit:
         else:
             st.markdown(f'<div class="verdict-banner verdict-sensational">⚠️ AUDIT VERDICT: SENSATIONALIZED / HYPERBOLIC ({score}/100)</div>', unsafe_allow_html=True)
 
-        # 2. Four Multi-Vector Telemetry Cards
+        # 2. Four Multi-Vector Telemetry Cards with Visual Gradient Meters
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             st.markdown(f"""
             <div class="metric-hud-box">
                 <div class="metric-val">{score}%</div>
                 <div class="metric-lbl">Authenticity Index</div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar-fill" style="width: {score}%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
@@ -626,6 +675,9 @@ if execute_audit:
             <div class="metric-hud-box">
                 <div class="metric-val">{grounding}%</div>
                 <div class="metric-lbl">Factual Grounding</div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar-fill" style="width: {grounding}%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         with c3:
@@ -633,6 +685,9 @@ if execute_audit:
             <div class="metric-hud-box">
                 <div class="metric-val">{distortion}%</div>
                 <div class="metric-lbl">Rhetorical Manipulation</div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar-fill" style="width: {distortion}%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
@@ -640,6 +695,9 @@ if execute_audit:
             <div class="metric-hud-box">
                 <div class="metric-val">{clickbait}%</div>
                 <div class="metric-lbl">Clickbait Load</div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar-fill" style="width: {clickbait}%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         
@@ -649,26 +707,26 @@ if execute_audit:
         col_left, col_right = st.columns([1.2, 0.8], gap="large")
         
         with col_left:
-            st.markdown("### 📋 Forensic Reasoning Summary")
+            st.markdown('<div class="section-header">📋 Forensic Reasoning Summary</div>', unsafe_allow_html=True)
             st.info(summary)
             
             if sources_found:
-                st.markdown("#### 🌐 Corroborating Real-World Sources Identified")
+                st.markdown('<div class="section-header">🌐 Corroborating Real-World Sources Identified</div>', unsafe_allow_html=True)
                 for s in sources_found:
                     st.markdown(f'<div class="source-item">📰 <strong>Verified Publisher/Record:</strong> {s}</div>', unsafe_allow_html=True)
             
-            st.markdown("### 🎯 Atomic Claim Decomposition & Entailment")
+            st.markdown('<div class="section-header">🎯 Atomic Claim Decomposition & Entailment</div>', unsafe_allow_html=True)
             if claims:
                 for c in claims:
                     status = c.get("status", "UNVERIFIED")
                     badge_color = "#10b981" if status == "VERIFIED" else "#ef4444" if status == "CONTRADICTED" else "#f59e0b"
                     st.markdown(f"""
                     <div class="claim-item">
-                        <span style="color:{badge_color}; font-weight:800; font-size:12px;">[{status}]</span> {c.get('claim')}
+                        <span style="color:{badge_color}; font-weight:800; font-size:12px; font-family:'JetBrains Mono';">[{status}]</span> {c.get('claim')}
                     </div>
                     """, unsafe_allow_html=True)
                     
-            st.markdown("### 🔍 Flagged Content Markup")
+            st.markdown('<div class="section-header">🔍 Flagged Content Markup</div>', unsafe_allow_html=True)
             if buzzwords:
                 with st.expander("View Interactive Highlighted Text", expanded=True):
                     st.markdown(highlight_manipulative_phrases(current_body, buzzwords), unsafe_allow_html=True)
@@ -676,7 +734,7 @@ if execute_audit:
                 st.success("Clean linguistic structure. Zero deceptive tokens highlighted in article body.")
 
         with col_right:
-            st.markdown("### 🧬 Cognitive Bias & Fallacy Radar")
+            st.markdown('<div class="section-header">🧬 Cognitive Bias & Fallacy Radar</div>', unsafe_allow_html=True)
             if fallacies and fallacies[0].get("name") != "None":
                 for f in fallacies:
                     st.markdown(f"""
@@ -688,7 +746,7 @@ if execute_audit:
             else:
                 st.success("✔️ No cognitive biases or logical fallacies detected. Adheres to journalistic standards.")
                 
-            st.markdown("### 🚩 Trigger Vocabulary Tokens")
+            st.markdown('<div class="section-header">🚩 Trigger Vocabulary Tokens</div>', unsafe_allow_html=True)
             if buzzwords:
                 for b in buzzwords:
                     st.markdown(f'<span class="token-chip">⚠️ {b.upper()}</span>', unsafe_allow_html=True)
@@ -696,7 +754,7 @@ if execute_audit:
                 st.write("No suspicious tokens isolated.")
                 
             st.write("---")
-            st.markdown("### 🌐 Live Fact-Checking Indexes")
+            st.markdown('<div class="section-header">🌐 Live Fact-Checking Indexes</div>', unsafe_allow_html=True)
             
             factcheck_url = f"https://toolbox.google.com/factcheck/explorer/search/{requests.utils.quote(search_query)}"
             st.link_button("🌐 Query Fact Check Verification Index", factcheck_url, use_container_width=True)
@@ -706,7 +764,7 @@ if execute_audit:
             
             # Export Report Download Feature
             st.write("---")
-            st.markdown("### 📥 Export Forensic Audit Log")
+            st.markdown('<div class="section-header">📥 Export Forensic Audit Log</div>', unsafe_allow_html=True)
             report_data = {
                 "system": "VeritasLens™ Intelligence Suite",
                 "institution": "Sree Gokulam Public School, Chengalpattu",
