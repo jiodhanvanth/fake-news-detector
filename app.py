@@ -174,14 +174,14 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         font-size: 11px;
-        color: #64748b;
+        color: #94a3b8;
         letter-spacing: 0.4px;
     }
     .subtle-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 3px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
         background: rgba(96, 165, 250, 0.08);
         border: 1px solid rgba(96, 165, 250, 0.2);
@@ -281,7 +281,7 @@ def execute_grounded_forensics(headline, body, key):
       "rhetorical_distortion_pct": <integer 0-100>,
       "clickbait_sensationalism_pct": <integer 0-100>,
       "verdict_summary": "<2-3 sentence clear explanation citing real-world verification findings>",
-      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. institution media of or reporting this, verified>"],
+      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. institution of or publisher reporting this, verified>"],
       "atomic_claims": [
         {{
           "claim": "<Core 1 Claim>",
@@ -308,7 +308,7 @@ def execute_grounded_forensics(headline, body, key):
         model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
-            tools=[{"google_search": {}}],  # Live Google Search Grounding
+            tools=[{"google_search": {}}],  # Live Search Grounding
             temperature=0.1
         )
     )
@@ -548,10 +548,10 @@ if execute_audit:
 # ----------------- SUBTLE CORNER TELEMETRY INDICATOR -----------------
 st.markdown("""
 <div class="neural-footer">
-    <div>VeritasLens™ Autonomous Intelligence Protocol • Class 10 CBSE Engineering Project</div>
+    <div>VeritasLens™ Protocol • Class 11 CS Project | Developed by <strong>Dhanvanth & Janesh</strong></div>
     <div class="subtle-badge">
         <span style="width:6px; height:6px; border-radius:50%; background-color:#60a5fa; display:inline-block;"></span>
-        Grounded via Google Deep Neural Intelligence Core
+        Grounded via Deep Neural Intelligence Core
     </div>
 </div>
 """, unsafe_allow_html=True)
