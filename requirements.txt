@@ -1,4 +1,5 @@
 streamlit
+scikit-learn
 requests
 beautifulsoup4
 trafilatura
