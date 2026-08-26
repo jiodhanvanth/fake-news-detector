@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom High-End Cyber Glassmorphism UI
+# High-End Cyber Glassmorphism & Modern Typography CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
@@ -26,9 +26,9 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
-    /* Hero Header */
+    /* Header Branding */
     .hero-container {
-        padding: 10px 0 20px 0;
+        padding: 5px 0 18px 0;
     }
     .hero-title {
         font-size: 38px;
@@ -43,21 +43,33 @@ st.markdown("""
         font-size: 14px;
         color: #94a3b8;
         font-weight: 500;
+        margin-bottom: 6px;
+    }
+    .author-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 4px 12px;
+        border-radius: 8px;
     }
     
-    /* Live Status Pill */
+    /* Live Status Beacon */
     .pulse-pill {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-radius: 9999px;
         font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.6px;
-        background: rgba(34, 197, 94, 0.1);
+        background: rgba(34, 197, 94, 0.12);
         color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        border: 1px solid rgba(34, 197, 94, 0.35);
         margin-bottom: 15px;
     }
     .pulse-dot {
@@ -65,7 +77,7 @@ st.markdown("""
         height: 8px;
         border-radius: 50%;
         background-color: #22c55e;
-        box-shadow: 0 0 8px #22c55e;
+        box-shadow: 0 0 10px #22c55e;
     }
 
     /* Verdict Banners */
@@ -80,30 +92,30 @@ st.markdown("""
         backdrop-filter: blur(12px);
     }
     .verdict-genuine {
-        background: linear-gradient(135deg, rgba(5, 150, 105, 0.22), rgba(16, 185, 129, 0.12));
+        background: linear-gradient(135deg, rgba(5, 150, 105, 0.25), rgba(16, 185, 129, 0.12));
         border: 1px solid #10b981;
         color: #34d399;
         box-shadow: 0 8px 30px rgba(16, 185, 129, 0.2);
     }
     .verdict-fake {
-        background: linear-gradient(135deg, rgba(220, 38, 38, 0.22), rgba(239, 68, 68, 0.12));
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.12));
         border: 1px solid #ef4444;
         color: #f87171;
         box-shadow: 0 8px 30px rgba(239, 68, 68, 0.2);
     }
     .verdict-sensational {
-        background: linear-gradient(135deg, rgba(234, 88, 12, 0.22), rgba(249, 115, 22, 0.12));
+        background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(249, 115, 22, 0.12));
         border: 1px solid #f97316;
         color: #fb923c;
         box-shadow: 0 8px 30px rgba(249, 115, 22, 0.2);
     }
 
-    /* Metric Cards */
+    /* Modern Card Layouts */
     .metric-card-box {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 14px;
-        padding: 18px 14px;
+        padding: 16px 14px;
         text-align: center;
         margin-bottom: 12px;
     }
@@ -111,7 +123,7 @@ st.markdown("""
         font-size: 28px;
         font-weight: 800;
         color: #f8fafc;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
     .metric-lbl {
         font-size: 11px;
@@ -121,13 +133,12 @@ st.markdown("""
         color: #94a3b8;
     }
 
-    /* Claim & Entity Cards */
     .claim-item {
         background: rgba(59, 130, 246, 0.06);
         border: 1px solid rgba(59, 130, 246, 0.2);
         border-left: 4px solid #3b82f6;
-        padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
+        padding: 12px 16px;
+        border-radius: 0 10px 10px 0;
         margin-bottom: 10px;
         font-size: 14px;
         line-height: 1.5;
@@ -137,8 +148,8 @@ st.markdown("""
         background: rgba(16, 185, 129, 0.06);
         border: 1px solid rgba(16, 185, 129, 0.2);
         border-left: 4px solid #10b981;
-        padding: 12px 16px;
-        border-radius: 0 10px 10px 0;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
         margin-bottom: 8px;
         font-size: 13px;
     }
@@ -147,9 +158,9 @@ st.markdown("""
         background: rgba(245, 158, 11, 0.08);
         border: 1px solid rgba(245, 158, 11, 0.25);
         border-left: 4px solid #f59e0b;
-        padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
-        margin-bottom: 12px;
+        padding: 12px 16px;
+        border-radius: 0 10px 10px 0;
+        margin-bottom: 10px;
     }
 
     .token-chip {
@@ -165,10 +176,19 @@ st.markdown("""
         margin: 3px 6px 3px 0;
     }
 
-    /* Discrete Bottom Footer Indicator */
+    /* Sidebar Tech Cards */
+    .side-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+    }
+
+    /* Footer Credits */
     .neural-footer {
-        margin-top: 45px;
-        padding: 16px 20px;
+        margin-top: 50px;
+        padding: 18px 20px;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         display: flex;
         justify-content: space-between;
@@ -324,30 +344,41 @@ def execute_grounded_forensics(headline, body, key):
             return json.loads(response_text[start_idx:end_idx+1])
         raise ValueError("Invalid JSON format returned by neural core.")
 
-# ----------------- SIDEBAR & PRESET BENCHMARKS -----------------
+# ----------------- REDESIGNED SIDEBAR CONTROL HUB -----------------
 with st.sidebar:
-    st.markdown('<div class="pulse-pill"><div class="pulse-dot"></div>NEURAL PIPELINE ONLINE</div>', unsafe_allow_html=True)
-    st.markdown("### ⚙️ Multi-Vector Telemetry")
+    st.markdown('<div class="pulse-pill"><div class="pulse-dot"></div>NEURAL ENGINE ONLINE</div>', unsafe_allow_html=True)
     
+    st.markdown("### 🧬 Project Identity")
     st.markdown("""
-    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
+    <div class="side-card">
+        <strong style="color:#60a5fa;">VeritasLens™ Suite</strong><br>
+        <span style="font-size:12px; color:#cbd5e1;">Class 11 Computer Science</span><br>
+        <hr style="margin:8px 0; opacity:0.15;">
+        <span style="font-size:12px;">👑 <strong>Created & Developed:</strong><br><span style="color:#a855f7; font-weight:700;">DHANVANTH CR</span></span><br>
+        <span style="font-size:12px;">🤝 <strong>Assisted by:</strong><br><span style="color:#38bdf8; font-weight:700;">JANESH S</span></span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### ⚙️ Multi-Vector Pipeline")
+    st.markdown("""
+    <div class="side-card">
         <strong style="color:#60a5fa;">1. Live Web Grounding</strong><br>
         <small style="color:#94a3b8;">Queries global news indexes in real-time to verify breaking events.</small>
     </div>
-    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
+    <div class="side-card">
         <strong style="color:#a855f7;">2. Neural Reasoning Engine</strong><br>
         <small style="color:#94a3b8;">Decomposes claims & validates evidence entailment.</small>
     </div>
-    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
+    <div class="side-card">
         <strong style="color:#34d399;">3. Statistical ML Core</strong><br>
         <small style="color:#94a3b8;">TF-IDF + Passive-Aggressive Stance Baseline.</small>
     </div>
     """, unsafe_allow_html=True)
     
     st.divider()
-    st.markdown("### 🧪 Quick Benchmarks")
+    st.markdown("### 🧪 Quick Benchmark Scenarios")
     
-    if st.button("🛰️ Scenario 1: Space & Technology News", use_container_width=True):
+    if st.button("🛰️ Scenario 1: Space & Technology", use_container_width=True):
         st.session_state.article_title = "ISRO successfully validates restart capability of cryogenic upper stage engine"
         st.session_state.article_body = "The Indian Space Research Organisation (ISRO) successfully conducted the qualification hot test of the CE-20 cryogenic engine at the Propulsion Complex in Mahendragiri, confirming all nominal parameters for upcoming missions."
         st.rerun()
@@ -362,14 +393,20 @@ with st.sidebar:
         st.session_state.article_body = "The Ministry of Finance announced minor administrative adjustments to digital filing deadlines for quarterly returns, but financial bloggers claim this unexpected measure will wipe out personal savings accounts across the nation."
         st.rerun()
 
-# ----------------- MAIN UI -----------------
+# ----------------- MAIN UI WORKFLOW -----------------
 st.markdown("""
 <div class="hero-container">
     <div class="hero-title">🛡️ VeritasLens™ Intelligence Suite</div>
     <div class="hero-subtitle">Real-Time Forensic Claim Verification • Live Web Grounding • Cognitive Fallacy Radar</div>
+    <div class="author-badge">
+        <span>👑 Created & Developed by <strong>DHANVANTH CR</strong></span>
+        <span>•</span>
+        <span>Assisted by <strong>JANESH S</strong></span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("#### 1. Ingest Content (Live URL or Raw Text)")
 col_u1, col_u2 = st.columns([4.2, 1])
 with col_u1:
     url_input = st.text_input("Enter Live News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link", label_visibility="collapsed")
@@ -387,13 +424,15 @@ if scrape_btn and url_input:
         else:
             st.error("Could not parse article from this URL. Enter the text manually below.")
 
+st.markdown("#### 2. Review or Edit Claim Context")
 headline_val = st.text_input("Claim / Article Headline", value=st.session_state.article_title, placeholder="Enter headline or primary assertion...")
-body_val = st.text_area("Full Article Content", value=st.session_state.article_body, height=160, placeholder="Enter article content to audit...")
+body_val = st.text_area("Full Article Content", value=st.session_state.article_body, height=150, placeholder="Enter article content to audit...")
 
 st.session_state.article_title = headline_val
 st.session_state.article_body = body_val
 
-execute_audit = st.button("🚀 Execute Real-Time Forensic Audit", type="primary", use_container_width=True)
+st.markdown("#### 3. Execute Verification")
+execute_audit = st.button("🚀 Execute Comprehensive Neural Forensic Audit", type="primary", use_container_width=True)
 
 # ----------------- AUDIT REPORT DASHBOARD -----------------
 if execute_audit:
@@ -548,7 +587,7 @@ if execute_audit:
 # ----------------- SUBTLE CORNER TELEMETRY INDICATOR -----------------
 st.markdown("""
 <div class="neural-footer">
-    <div>VeritasLens™ Protocol • Class 11 CS Project | Developed by <strong>Dhanvanth & Janesh</strong></div>
+    <div>VeritasLens™ Protocol • Class 11 CS Project | Created & Developed by <strong>DHANVANTH CR</strong>, Assisted by <strong>JANESH S</strong></div>
     <div class="subtle-badge">
         <span style="width:6px; height:6px; border-radius:50%; background-color:#60a5fa; display:inline-block;"></span>
         Grounded via Deep Neural Intelligence Core
