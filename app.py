@@ -1,162 +1,217 @@
 import streamlit as st
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from textblob import TextBlob
 import requests
 import re
+import spacy
 
-st.set_page_config(
-    page_title="VeritasLens | AI News Forensic Engine", 
-    page_icon="🛡️", 
-    layout="wide"
-)
+# Page Configuration & Styling
+st.set_page_config(page_title="Veritas AI • Claim Forensic Engine", page_icon="🧬", layout="wide")
 
-# Custom Styling for clean presentation
+# Enhanced Custom Styling
 st.markdown("""
     <style>
-    .highlight-fake {
-        background-color: #ff4b4b33;
-        border-bottom: 2px solid #ff4b4b;
+    .highlight-manipulative {
+        background-color: rgba(255, 75, 75, 0.18);
+        border-bottom: 2px solid #FF4B4B;
         padding: 2px 4px;
         border-radius: 4px;
         font-weight: 600;
+        cursor: help;
     }
+    .main-score {
+        font-size: 52px;
+        font-weight: 800;
+        margin-bottom: 0px;
+    }
+    .score-subtitle {
+        font-size: 16px;
+        opacity: 0.8;
+        margin-top: -10px;
+        margin-bottom: 20px;
+    }
+    .verdict-box {
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        color: white;
+        text-align: center;
+        font-weight: 800;
+        font-size: 22px;
+    }
+    .verified-box { background-color: #2e7d32; }
+    .risk-box { background-color: #c62828; }
+    .neutral-box { background-color: #f9a825; color: #1f1f1f; }
+    
     .metric-card {
-        background-color: #f8f9fa;
+        background-color: #f1f3f4;
         padding: 15px;
-        border-radius: 10px;
-        border-left: 5px solid #1f77b4;
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🛡️ VeritasLens: AI Forensic News & Claim Verifier")
-st.caption("Multi-Stage Verification: Stylometric Analysis • Machine Learning Semantics • Live Knowledge Cross-Referencing")
-
-# Robust in-memory training pipeline
+# 1. CORE AI Engine: Dynamic Balanced Classifier
 @st.cache_resource
-def get_ml_pipeline():
-    training_texts = [
-        "Government announces new educational policy reforms across schools and colleges nationwide.",
-        "ISRO successfully launches navigation satellite into orbit from Sriharikota space center.",
-        "Ministry of Finance releases quarterly economic growth and tax revenue statistics.",
-        "Health department advises citizens on seasonal influenza prevention and vaccination schedule.",
-        "Reserve Bank issues updated monetary policy guidelines for commercial banks.",
-        "Scientists publish comprehensive study on clean energy grid infrastructure and solar conversion efficiency.",
-        "SHOCKING miracle cure hidden by corrupt doctors leaked online cures all diseases overnight!",
-        "URGENT secret conspiracy exposed government is putting secret microchips in tap water!",
-        "Mind-blowing breakthrough that the billionaire elites do not want you to know about!",
-        "UNBELIEVABLE secret leak proves celebrities are secretly alien reptiles from outer space!",
-        "Secret military experiment exposed as 5G towers secretly control civilian brainwaves!",
-        "Doctors banned this one magical fruit that instantly burns all body fat in 3 hours!"
+def load_ai_engine():
+    # Pre-train with archetypal linguistic structures
+    texts = [
+        "Govt mandates 5% interest rate cap for agriculture loans to boost farming sector.",
+        "SpaceX to launch third-generation Starlink satellite array from Florida coast tomorrow.",
+        "Annual GDP growth remains steady at 6.8%, according to new Finance Ministry report.",
+        "SHOCKING miracle breakthrough hidden by doctors leaks cure for all diseases overnight!",
+        "URGENT secret conspiracy exposed government putting tracking microchips in standard bottled water!",
+        "MIND-BLOWING truth billionaire elites don't want you to know about energy!",
+        "UNBELIEVABLE secret leak shows celebs are actually extraterrestrial reptile species from Mars!"
     ]
-    training_labels = [
-        "GENUINE", "GENUINE", "GENUINE", "GENUINE", "GENUINE", "GENUINE",
-        "UNRELIABLE", "UNRELIABLE", "UNRELIABLE", "UNRELIABLE", "UNRELIABLE", "UNRELIABLE"
-    ]
+    labels = ["GENUINE", "GENUINE", "GENUINE", "MANIPULATIVE", "MANIPULATIVE", "MANIPULATIVE", "MANIPULATIVE"]
     
     pipe = Pipeline([
-        ('tfidf', TfidfVectorizer(ngram_range=(1, 2), stop_words='english')),
-        ('clf', PassiveAggressiveClassifier(max_iter=150, random_state=42))
+        ('tfidf', TfidfVectorizer(ngram_range=(1, 3), stop_words='english')),
+        ('clf', MultinomialNB(alpha=0.01))
     ])
-    pipe.fit(training_texts, training_labels)
-    return pipe
+    pipe.fit(texts, labels)
+    # Load NLP parser for entity extraction
+    nlp_parser = spacy.load("en_core_web_sm")
+    return pipe, nlp_parser
 
-model = get_ml_pipeline()
+ai_engine, nlp = load_ai_engine()
 
-SENSATIONAL_LEXICON = {
+# Manipulative Dictionary
+MANIPULATIVE_LEXICON = {
     "shocking", "unbelievable", "secret", "miracle", "exposed", "conspiracy", 
     "urgent", "leaked", "danger", "mind-blowing", "banned", "cure", "corrupt", 
-    "magical", "breakthrough", "aliens", "hidden"
+    "magical", "breakthrough", "aliens", "hidden", "proven", "coverup", "alert"
 }
 
-def analyze_forensics(text):
+# 2. ANALYSIS CORE: Stylometric & Rhetorical Processing
+def run_forensic_scan(text):
     blob = TextBlob(text)
     subjectivity = blob.sentiment.subjectivity
     polarity = abs(blob.sentiment.polarity)
     
     tokens = re.findall(r'\b\w+\b', text.lower())
-    found_buzzwords = [w for w in tokens if w in SENSATIONAL_LEXICON]
-    caps_words = [w for w in text.split() if w.isupper() and len(w) > 1 and w.isalpha()]
+    buzzwords = [w for w in tokens if w in MANIPULATIVE_LEXICON]
+    unique_buzzwords = list(set(buzzwords))
     
-    sensational_score = min(100, int((subjectivity * 35) + (polarity * 20) + (len(found_buzzwords) * 15) + (len(caps_words) * 10)))
-    return sensational_score, subjectivity, polarity, list(set(found_buzzwords)), caps_words
+    # Sensationalism score calculation (0-100)
+    score = min(100, int((subjectivity * 35) + (polarity * 20) + (len(unique_buzzwords) * 20)))
+    return score, subjectivity, unique_buzzwords
 
-def highlight_text(text, buzzwords):
+def highlight_triggers(text, buzzwords):
     highlighted = text
     for word in buzzwords:
         pattern = re.compile(rf'\b({re.escape(word)})\b', re.IGNORECASE)
-        highlighted = pattern.sub(r'<span class="highlight-fake">\1</span>', highlighted)
+        highlighted = pattern.sub(r'<span class="highlight-manipulative" title="Manipulative Language Detected">\1</span>', highlighted)
     return highlighted
 
-def search_live_entities(query):
-    try:
-        url = f"https://en.wikipedia.org/w/api.php?action=opensearch&search={requests.utils.quote(query)}&limit=3&namespace=0&format=json"
-        res = requests.get(url, timeout=5).json()
-        return list(zip(res[1], res[3]))
-    except Exception:
-        return []
+# 3. KNOWLEDGE ENGINE: Real-time Entity Cross-Referencing
+def cross_reference_entities(text):
+    doc = nlp(text)
+    # Extract Persons, Organizations, or Locations as core entities
+    entities = [ent.text for ent in doc.ents if ent.label_ in ("PERSON", "ORG", "GPE", "NORP")]
+    unique_ents = list(set(entities))[:4] # Take top 4 unique
+    
+    refs = []
+    if unique_ents:
+        for ent in unique_ents:
+            try:
+                url = f"https://en.wikipedia.org/w/api.php?action=opensearch&search={requests.utils.quote(ent)}&limit=1&namespace=0&format=json"
+                res = requests.get(url, timeout=4).json()
+                if res[1] and res[3]:
+                    refs.append({"name": ent, "title": res[1][0], "url": res[3][0]})
+            except Exception:
+                pass
+    return unique_ents, refs
 
-# Layout
-col_input, col_report = st.columns([1.1, 0.9], gap="large")
+# ----------------- MAIN UI DASHBOARD -----------------
 
-with col_input:
-    st.subheader("📝 Input News Content")
-    headline = st.text_input("Headline / Key Claim", "ISRO announces expansion of regional satellite navigation network")
-    article_body = st.text_area(
-        "Article Body Text", 
-        height=220, 
-        value="The Indian Space Research Organisation (ISRO) confirmed plans to deploy new navigation payloads next quarter. Officials stated the upgrades will improve precision for civilian positioning services and maritime transport systems across the subcontinent."
-    )
-    run_analysis = st.button("🚀 Run Forensic Verification", type="primary", use_container_width=True)
+st.title("🧬 Veritas AI: Comprehensive Claim Forensic Engine")
+st.caption("Integrated Platform: Linguistic Forensics • Machine Learning Stance • Live Knowledge Graph Validation")
 
-if run_analysis and article_body.strip():
-    with st.spinner("Executing linguistic & rhetorical forensic scan..."):
-        sensational_score, subjectivity, polarity, buzzwords, caps = analyze_forensics(article_body)
-        prediction = model.predict([article_body])[0]
-        live_refs = search_live_entities(headline)
+# Setup Columns
+col_main, col_stats = st.columns([1.3, 0.7], gap="large")
+
+with col_main:
+    st.markdown("### 📝 Enter Content for AI Verification")
+    headline = st.text_input("Claim Headline", placeholder="Scientists discover breakthrough in quantum computing stability...")
+    article = st.text_area("Full Article Text / Key Context", height=220, placeholder="Start typing or paste content here...")
+    analyze_btn = st.button("🚀 Execute Comprehensive AI Audit", type="primary", use_container_width=True)
+
+if analyze_btn and article.strip():
+    with st.spinner("AI Engine Executing Multi-Modal Scan..."):
+        # Layer 1: Forensic Scan
+        sensationalism, subjectivity, buzzwords = run_forensic_scan(article)
         
-        # Calculate Unified Credibility Index
-        if prediction == "UNRELIABLE" or sensational_score > 45:
-            credibility = max(5, int(100 - (sensational_score * 0.6) - (len(buzzwords) * 8) - (len(caps) * 4)))
-            verdict = "HIGH RISK / SENSATIONALIZED"
-            color = "red"
+        # Layer 2: Machine Learning Prediction
+        prediction = ai_engine.predict([article])[0]
+        confidence_probs = ai_engine.predict_proba([article])[0]
+        confidence = max(confidence_probs) * 100
+        
+        # Layer 3: Entity Extraction & Cross-Ref
+        entities, knowledge_links = cross_reference_entities(headline if headline else article[:100])
+        
+        # 4. UNIFIED UNIFIED VERDICT CALCULATION
+        # Unified Trust Formula: Combine model confidence, low sensationalism, and successful cross-ref
+        base_trust = confidence if prediction == "GENUINE" else (100 - confidence)
+        unified_trust = min(98, max(5, int(
+            (base_trust * 0.6) + 
+            ((100 - sensationalism) * 0.3) + 
+            (min(len(knowledge_links), 2) * 5) # successful entity matches add boost
+        )))
+
+    with col_stats:
+        st.markdown("### 📊 AI Audit Summary")
+        
+        # Big Score + Subtitle
+        st.markdown(f'<div class="main-score">{unified_trust} / 100</div>', unsafe_allow_html=True)
+        st.markdown('<div class="score-subtitle">Integrated Veritas Credibility Index</div>', unsafe_allow_html=True)
+        
+        # Dynamic Verdict Box
+        if prediction == "MANIPULATIVE" or unified_trust < 35:
+            verdict_class, verdict_text = "risk-box", "⚠️ AI DETECTS HIGH RISK"
+        elif unified_trust > 75:
+            verdict_class, verdict_text = "verified-box", "✅ AI VERIFIED: CREDIBLE"
         else:
-            credibility = min(98, int(100 - (sensational_score * 0.35)))
-            verdict = "VERIFIED / CREDIBLE STRUCTURE"
-            color = "green"
-
-    with col_report:
-        st.subheader("📊 Forensic Audit Report")
+            verdict_class, verdict_text = "neutral-box", "⚖️ AMBIGUOUS STRUCTURE"
+        st.markdown(f'<div class="verdict-box {verdict_class}">{verdict_text}</div>', unsafe_allow_html=True)
         
-        st.metric(label="Unified Credibility Index", value=f"{credibility} / 100")
-        st.progress(credibility / 100)
-        st.markdown(f"**Classification:** :{color}[**{verdict}**]")
+        # Breakdown Metrics
+        st.markdown("#### Veritas Scoring Breakdown")
+        st.progress(unified_trust / 100)
+        
+        m1, m2 = st.columns(2)
+        with m1:
+            st.metric("ML Stance", prediction, help="Machine Learning analysis of text patterns.")
+        with m2:
+            st.metric("Sensationalism", f"{sensationalism}%", help="Measure of emotional or exaggerated language.")
         
         st.write("---")
         
-        c1, c2, c3 = st.columns(3)
-        c1.metric("ML Stance", prediction)
-        c2.metric("Sensationalism", f"{sensational_score}%")
-        c3.metric("Subjectivity", f"{int(subjectivity*100)}%")
-        
-        st.write("---")
-        
-        st.markdown("#### 🔍 Rhetorical Analysis & Trigger Flags")
-        if buzzwords or caps:
-            st.markdown(f"- **Sensational Keywords:** `{', '.join(buzzwords) if buzzwords else 'None'}`")
-            st.markdown(f"- **Capitalized Emphasis Tokens:** `{', '.join(caps) if caps else 'None'}`")
-        else:
-            st.success("Clean linguistic structure. No manipulative trigger patterns detected.")
+        # Rhetorical Flags
+        st.markdown("#### 🚩 Rhetorical Manipulators & Trigger Flags")
+        if buzzwords:
+            st.markdown(f"Detected **{len(buzzwords)}** high-risk tokens:")
+            st.code(", ".join(buzzwords))
             
-        with st.expander("View Highlighted Article Breakdown"):
-            st.markdown(highlight_text(article_body, buzzwords), unsafe_allow_html=True)
-            
-        st.write("---")
-        st.markdown("#### 🌐 Live Reference Cross-Check")
-        if live_refs:
-            for title, link in live_refs:
-                st.markdown(f"- [{title}]({link})")
+            with st.expander("Show Highlighted Article", expanded=True):
+                st.markdown(highlight_triggers(article, buzzwords), unsafe_allow_html=True)
         else:
-            st.info("No direct reference matches in open knowledge indexes.")
+            st.success("Clean linguistic structure. No manipulative patterns detected.")
+
+        st.write("---")
+        
+        # Knowledge Entity Links
+        st.markdown("#### 🌐 Live Knowledge Graph Reference Check")
+        if knowledge_links:
+            st.markdown(f"Analyzed **{len(entities)}** key entities from claim:")
+            for ref in knowledge_links:
+                st.markdown(f"- **{ref['name']}** $\rightarrow$ [{ref['title']}]({ref['url']})")
+        else:
+            st.info("No direct reference matches for key entities in open knowledge indexes.")
+
+elif analyze_btn:
+    st.error("Please enter at least the article body text to run the analysis.")
