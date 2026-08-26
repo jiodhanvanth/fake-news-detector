@@ -11,13 +11,13 @@ from google import genai
 from google.genai import types
 
 st.set_page_config(
-    page_title="VeritasLens™ • Neural Forensic Intelligence",
+    page_title="VeritasLens™ • Live Grounded Claim Forensic Engine",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Cyber-Glassmorphic Forensic Dashboard Styling
+# Custom High-End Cyber Dashboard CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -27,7 +27,7 @@ st.markdown("""
     }
     
     .hero-title {
-        font-size: 36px;
+        font-size: 38px;
         font-weight: 800;
         letter-spacing: -0.5px;
         background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
@@ -40,7 +40,7 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 12px;
+        padding: 4px 14px;
         border-radius: 9999px;
         font-size: 11px;
         font-weight: 700;
@@ -48,16 +48,16 @@ st.markdown("""
         background: rgba(34, 197, 94, 0.12);
         color: #22c55e;
         border: 1px solid rgba(34, 197, 94, 0.28);
-        margin-bottom: 12px;
+        margin-bottom: 15px;
     }
     
     .verdict-card {
-        padding: 24px;
+        padding: 22px;
         border-radius: 16px;
         font-weight: 800;
         text-align: center;
         letter-spacing: 0.5px;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
         backdrop-filter: blur(12px);
     }
     
@@ -82,21 +82,37 @@ st.markdown("""
         box-shadow: 0 8px 32px rgba(249, 115, 22, 0.2);
     }
 
-    .telemetry-card {
+    .metric-card-box {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 14px;
         padding: 16px;
+        text-align: center;
         margin-bottom: 12px;
-        transition: transform 0.2s ease;
     }
     
+    .metric-val {
+        font-size: 26px;
+        font-weight: 800;
+        color: #f1f5f9;
+        margin-bottom: 4px;
+    }
+    
+    .metric-lbl {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.7;
+    }
+
     .claim-item {
         background: rgba(59, 130, 246, 0.06);
+        border: 1px solid rgba(59, 130, 246, 0.2);
         border-left: 4px solid #3b82f6;
         padding: 12px 16px;
         border-radius: 0 10px 10px 0;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         font-size: 14px;
     }
     
@@ -109,6 +125,15 @@ st.markdown("""
         margin-bottom: 10px;
     }
     
+    .source-pill {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-left: 4px solid #10b981;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 8px;
+    }
+
     .token-chip {
         display: inline-block;
         padding: 5px 10px;
@@ -120,14 +145,6 @@ st.markdown("""
         color: #f87171;
         border: 1px solid rgba(239, 68, 68, 0.3);
         margin: 3px 4px 3px 0;
-    }
-    
-    .highlight-manipulation {
-        background-color: rgba(239, 68, 68, 0.25);
-        border-bottom: 2px solid #ef4444;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-weight: 600;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -176,14 +193,14 @@ def scrape_article_data(url):
         if downloaded:
             extracted_text = trafilatura.extract(downloaded)
             soup = BeautifulSoup(downloaded, 'html.parser')
-            title = soup.title.string if soup.title else "Extracted Article"
+            title = soup.title.string if soup.title else "Extracted News Article"
             if extracted_text and len(extracted_text) > 50:
                 return title.strip(), extracted_text.strip()
         
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         res = requests.get(url, headers=headers, timeout=8)
         soup = BeautifulSoup(res.text, 'html.parser')
-        title = soup.title.string if soup.title else "Extracted Article"
+        title = soup.title.string if soup.title else "Extracted News Article"
         paras = [p.get_text() for p in soup.find_all('p') if len(p.get_text()) > 20]
         body = " ".join(paras)
         if len(body) > 50:
@@ -192,119 +209,133 @@ def scrape_article_data(url):
     except Exception as e:
         return None, str(e)
 
-# ----------------- LAYER 3: DEEP COGNITIVE NEURAL NLP ENGINE -----------------
-def execute_deep_forensics(headline, body, key):
+# ----------------- LAYER 3: REAL-TIME GROUNDED NEURAL ENGINE -----------------
+def execute_grounded_forensics(headline, body, key):
     client = genai.Client(api_key=key)
     
     prompt = f"""
-    You are VeritasLens Neural Core, an autonomous investigative AI specializing in factual forensic linguistics, disinformation modeling, and rhetorical fallacy deconstruction.
+    You are VeritasLens Real-Time Neural Core.
+    You have access to live Google Search Grounding.
+    
+    CRITICAL INSTRUCTION:
+    First, perform live searches to verify if the following event, headline, or claim actually happened in real-world news or if reputable media outlets (ISRO, NASA, BBC, The Hindu, Reuters, AP, PIB, etc.) have documented it.
+    
+    - If reputable mainstream news sources confirm this story, classify it as GENUINE with a high credibility score (85-98) regardless of technical jargon.
+    - If the story is an unsubstantiated conspiracy, internet hoax, or medical myth that is debunked or unverified online, classify it as FAKE with a low score (5-30).
+    - If it is based on a real event but heavily exaggerated with clickbait phrasing, classify it as SENSATIONALIZED (50-75).
 
-    ARTICLE HEADLINE / CLAIM:
+    HEADLINE / ASSERTION:
     {headline}
 
     ARTICLE CONTENT:
     {body[:3500]}
 
-    Evaluate this input rigorously. Return ONLY a valid JSON object matching this schema:
+    Return your audit strictly in a JSON code block using this exact schema:
+    ```json
     {{
-      "verdict": "<GENUINE | SENSATIONALIZED | FAKE>",
+      "verdict": "<GENUINE FAKE SENSATIONALIZED |>",
       "credibility_score": <integer from 0 to 100>,
       "factual_grounding_pct": <integer 0-100>,
       "rhetorical_distortion_pct": <integer 0-100>,
       "clickbait_sensationalism_pct": <integer 0-100>,
-      "verdict_summary": "<2-3 sentence clear, objective explanation specifically analyzing this text>",
+      "verdict_summary": "<2-3 sentence explanation citing real-world verification findings>",
+      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. institution media of or reporting this, verified>"],
       "atomic_claims": [
         {{
-          "claim": "<Isolated atomic assertion 1>",
-          "status": "<VERIFIED | UNVERIFIED | CONTRADICTED>"
+          "claim": "<Core 1 Claim>",
+          "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"
         }},
         {{
-          "claim": "<Isolated atomic assertion 2>",
-          "status": "<VERIFIED | UNVERIFIED | CONTRADICTED>"
+          "claim": "<Core 2 Claim>",
+          "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"
         }}
       ],
-      "flagged_keywords": ["<manipulative or deceptive words found in text>"],
+      "flagged_keywords": ["<manipulative or deceptive words if any, or empty list>"],
       "cognitive_fallacies": [
         {{
-          "name": "<Logical Fallacy / Bias Name, e.g. Appeal to Fear, Cherry-Picking, False Authority>",
-          "description": "<How it manifests in this text>"
+          "name": "<Logical / Bias Fallacy Name None applicable, if or>",
+          "description": "<Brief absence bias note of on or presence rhetorical>"
         }}
       ],
-      "recommended_factcheck_query": "<4-6 word optimal search query to verify this on AP/Reuters/FactCheck>"
+      "recommended_factcheck_query": "<4-6 word optimal search query to cross-reference this>"
     }}
+    ```
     """
     
     res = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
-            response_mime_type="application/json",
+            tools=[{"google_search": {}}],  # Enables Real-Time Web Grounding
             temperature=0.1
         )
     )
-    return json.loads(res.text)
+    
+    # Extract JSON safely from response text
+    response_text = res.text
+    json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
+    if json_match:
+        return json.loads(json_match.group(1))
+    else:
+        # Fallback raw parse
+        start_idx = response_text.find('{')
+        end_idx = response_text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            return json.loads(response_text[start_idx:end_idx+1])
+        raise ValueError("Invalid JSON format returned by neural model.")
 
-# Highlight Helper
-def highlight_manipulative_phrases(text, phrases):
-    highlighted = text
-    for phrase in phrases:
-        pattern = re.compile(rf'\b({re.escape(phrase)})\b', re.IGNORECASE)
-        highlighted = pattern.sub(r'<span class="highlight-manipulation">\1</span>', highlighted)
-    return highlighted
-
-# ----------------- SIDEBAR & PRESETS -----------------
+# ----------------- SIDEBAR & PRESET BENCHMARKS -----------------
 with st.sidebar:
-    st.markdown('<div class="status-badge">● QUANTUM NLP ENGINE ACTIVE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-badge">● LIVE WEB GROUNDING ACTIVE</div>', unsafe_allow_html=True)
     st.markdown("### ⚙️ Multi-Vector Pipeline")
     
     st.markdown("""
-    <div class="telemetry-card">
-        <strong>1. Statistical ML Core</strong><br>
-        <small style="opacity:0.75;">TF-IDF + Passive-Aggressive Stance Classifier</small>
+    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
+        <strong>1. Live Web Grounding</strong><br>
+        <small style="opacity:0.75;">Queries Google Search index in real-time to verify breaking events.</small>
     </div>
-    <div class="telemetry-card">
+    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
         <strong>2. Neural Reasoning Engine</strong><br>
-        <small style="opacity:0.75;">Deep Semantic Claim Decomposition & NLI</small>
+        <small style="opacity:0.75;">Decomposes claims & validates evidence entailment.</small>
     </div>
-    <div class="telemetry-card">
-        <strong>3. Cognitive Fallacy Radar</strong><br>
-        <small style="opacity:0.75;">Rhetorical Distortion & Sensationalism Profiling</small>
+    <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:12px;">
+        <strong>3. Statistical ML Core</strong><br>
+        <small style="opacity:0.75;">TF-IDF + Passive-Aggressive Stance Baseline.</small>
     </div>
     """, unsafe_allow_html=True)
     
     st.divider()
-    st.markdown("### 🧪 Demonstration Benchmarks")
+    st.markdown("### 🧪 Quick Benchmarks")
     
-    if st.button("🛰️ Verified Space Science Wire", use_container_width=True):
-        st.session_state.article_title = "ISRO validates cryogenic upper-stage restart capabilities for lunar trajectory"
-        st.session_state.article_body = "The Indian Space Research Organisation (ISRO) successfully executed the multi-restart hot test of its indigenous CE-20 cryogenic engine at the Mahendragiri Propulsion Complex. Telemetry and chamber pressures matched mission trajectories for upcoming deep-space payloads."
+    if st.button("🛰️ Scenario 1: Genuine Space News", use_container_width=True):
+        st.session_state.article_title = "ISRO successfully validates restart capability of cryogenic upper stage engine"
+        st.session_state.article_body = "The Indian Space Research Organisation (ISRO) successfully conducted the qualification hot test of the CE-20 cryogenic engine at the Propulsion Complex in Mahendragiri, confirming all nominal parameters for upcoming missions."
         st.rerun()
 
-    if st.button("🚨 Fabricated Miracle Cure Forward", use_container_width=True):
+    if st.button("🚨 Scenario 2: Medical Conspiracy Hoax", use_container_width=True):
         st.session_state.article_title = "SHOCKING miracle cure hidden by corrupt doctors leaked online!"
         st.session_state.article_body = "URGENT! Corrupt medical cartels are in panic after a secret natural herb leaked online that instantly cures all cardiovascular diseases overnight. Billionaire elites are actively threatening doctors to ban this mind-blowing breakthrough from the public!"
         st.rerun()
 
-    if st.button("📢 Sensational Economic Clickbait", use_container_width=True):
+    if st.button("📢 Scenario 3: Clickbait Distortion", use_container_width=True):
         st.session_state.article_title = "Mind-blowing tax change that will shock every citizen tomorrow morning"
-        st.session_state.article_body = "The Ministry of Finance announced minor administrative adjustments to digital filing deadlines for quarterly returns, but financial influencers are claiming this unexpected measure will wipe out personal savings accounts across the nation."
+        st.session_state.article_body = "The Ministry of Finance announced minor administrative adjustments to digital filing deadlines for quarterly returns, but financial bloggers claim this unexpected measure will wipe out personal savings accounts across the nation."
         st.rerun()
 
 # ----------------- MAIN UI -----------------
 st.markdown('<div class="hero-title">🛡️ VeritasLens™ Intelligence Suite</div>', unsafe_allow_html=True)
-st.caption("Forensic Misinformation Identification • Live Web Article Extraction • Multi-Vector Credibility Telemetry")
+st.caption("Live Web-Grounded Misinformation Detection • DOM Extraction • Multi-Vector Telemetry")
 
 st.markdown("---")
 
 col_u1, col_u2 = st.columns([4, 1])
 with col_u1:
-    url_input = st.text_input("Enter Live Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link")
+    url_input = st.text_input("Enter Live News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link", label_visibility="collapsed")
 with col_u2:
-    st.write("")
-    scrape_btn = st.button("Extract Article", use_container_width=True)
+    scrape_btn = st.button("Extract URL", use_container_width=True)
 
 if scrape_btn and url_input:
-    with st.spinner("Executing DOM extraction and filtering scripts/ads..."):
+    with st.spinner("Scraping live article body and filtering DOM scripts/ads..."):
         scraped_title, scraped_body = scrape_article_data(url_input)
         if scraped_title and len(scraped_body) > 40:
             st.session_state.article_title = scraped_title
@@ -320,41 +351,45 @@ body_val = st.text_area("Full Article Text", value=st.session_state.article_body
 st.session_state.article_title = headline_val
 st.session_state.article_body = body_val
 
-execute_audit = st.button("🚀 Execute Comprehensive Neural Forensic Audit", type="primary", use_container_width=True)
+execute_audit = st.button("🚀 Execute Live Grounded Neural Forensic Audit", type="primary", use_container_width=True)
 
 # ----------------- AUDIT REPORT DASHBOARD -----------------
 if execute_audit:
     if not body_val.strip():
         st.error("⚠️ Please provide an article body or fetch a URL first.")
     else:
-        with st.spinner(f"Executing multi-vector neural audit on: '{headline_val[:40]}...'"):
-            ml_pred = ml_engine.predict([body_val])[0]
-            
+        with st.spinner(f"Querying live web indexes and evaluating: '{headline_val[:45]}...'"):
             key_to_use = API_KEY if API_KEY else "LOCAL_FALLBACK"
+            
             if key_to_use != "LOCAL_FALLBACK":
                 try:
-                    res = execute_deep_forensics(headline_val, body_val, key_to_use)
-                except Exception:
+                    res = execute_grounded_forensics(headline_val, body_val, key_to_use)
+                except Exception as err:
+                    st.warning(f"Live search fallback: {err}")
+                    ml_pred = ml_engine.predict([body_val])[0]
                     res = {
                         "verdict": ml_pred,
-                        "credibility_score": 92 if ml_pred == "GENUINE" else 15,
-                        "factual_grounding_pct": 90 if ml_pred == "GENUINE" else 20,
+                        "credibility_score": 90 if ml_pred == "GENUINE" else 20,
+                        "factual_grounding_pct": 88 if ml_pred == "GENUINE" else 15,
                         "rhetorical_distortion_pct": 10 if ml_pred == "GENUINE" else 85,
                         "clickbait_sensationalism_pct": 12 if ml_pred == "GENUINE" else 88,
-                        "verdict_summary": f"Statistical Machine Learning classifies text as {ml_pred} based on n-gram distribution and structural tokenization.",
+                        "verdict_summary": f"Classified as {ml_pred} via statistical NLP patterns.",
+                        "real_world_sources_found": ["Statistical NLP Baseline"],
                         "atomic_claims": [{"claim": headline_val[:80], "status": "VERIFIED" if ml_pred == "GENUINE" else "UNVERIFIED"}],
-                        "flagged_keywords": ["Urgent", "Shocking"] if ml_pred != "GENUINE" else [],
-                        "cognitive_fallacies": [{"name": "Sensational Distortion", "description": "High emotional lexical density."}] if ml_pred != "GENUINE" else [],
+                        "flagged_keywords": [],
+                        "cognitive_fallacies": [],
                         "recommended_factcheck_query": headline_val
                     }
             else:
+                ml_pred = ml_engine.predict([body_val])[0]
                 res = {
                     "verdict": ml_pred,
-                    "credibility_score": 92 if ml_pred == "GENUINE" else 15,
-                    "factual_grounding_pct": 90 if ml_pred == "GENUINE" else 20,
+                    "credibility_score": 90 if ml_pred == "GENUINE" else 20,
+                    "factual_grounding_pct": 88 if ml_pred == "GENUINE" else 15,
                     "rhetorical_distortion_pct": 10 if ml_pred == "GENUINE" else 85,
                     "clickbait_sensationalism_pct": 12 if ml_pred == "GENUINE" else 88,
-                    "verdict_summary": f"Statistical Machine Learning pipeline flagged content as {ml_pred}.",
+                    "verdict_summary": "Evaluated via local ML model (Add GEMINI_API_KEY to secrets for live Google grounding).",
+                    "real_world_sources_found": ["Local Model"],
                     "atomic_claims": [{"claim": headline_val[:80], "status": "VERIFIED" if ml_pred == "GENUINE" else "UNVERIFIED"}],
                     "flagged_keywords": [],
                     "cognitive_fallacies": [],
@@ -366,7 +401,8 @@ if execute_audit:
             grounding = res.get("factual_grounding_pct", 50)
             distortion = res.get("rhetorical_distortion_pct", 50)
             clickbait = res.get("clickbait_sensationalism_pct", 50)
-            summary = res.get("verdict_summary", "Audit finished.")
+            summary = res.get("verdict_summary", "Audit completed.")
+            sources_found = res.get("real_world_sources_found", [])
             claims = res.get("atomic_claims", [])
             buzzwords = res.get("flagged_keywords", [])
             fallacies = res.get("cognitive_fallacies", [])
@@ -374,29 +410,58 @@ if execute_audit:
 
         st.markdown("---")
         
-        # 1. TOP VERDICT BANNER
+        # 1. Dynamic Verdict Banner
         if verdict == "GENUINE":
-            st.markdown(f'<div class="verdict-card verdict-genuine">✅ AI AUDIT VERDICT: VERIFIED / CREDIBLE CONTENT ({score}/100)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="verdict-card verdict-genuine">✅ AI AUDIT VERDICT: VERIFIED / AUTHENTIC NEWS ({score}/100)</div>', unsafe_allow_html=True)
         elif verdict == "FAKE":
             st.markdown(f'<div class="verdict-card verdict-fake">🚨 AI AUDIT VERDICT: UNRELIABLE / FABRICATED CLAIM ({score}/100)</div>', unsafe_allow_html=True)
         else:
             st.markdown(f'<div class="verdict-card verdict-sensational">⚠️ AI AUDIT VERDICT: SENSATIONALIZED / HYPERBOLIC ({score}/100)</div>', unsafe_allow_html=True)
 
-        # 2. FOUR DYNAMIC MULTI-VECTOR METRIC DIALS
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Overall Authenticity Index", f"{score}%", delta=f"{score-50}% baseline")
-        m2.metric("Factual Grounding Score", f"{grounding}%")
-        m3.metric("Rhetorical Manipulation", f"{distortion}%")
-        m4.metric("Clickbait Lexical Load", f"{clickbait}%")
+        # 2. Four Multi-Vector Telemetry Cards
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown(f"""
+            <div class="metric-card-box">
+                <div class="metric-val">{score}%</div>
+                <div class="metric-lbl">Authenticity Index</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""
+            <div class="metric-card-box">
+                <div class="metric-val">{grounding}%</div>
+                <div class="metric-lbl">Factual Grounding</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c3:
+            st.markdown(f"""
+            <div class="metric-card-box">
+                <div class="metric-val">{distortion}%</div>
+                <div class="metric-lbl">Rhetorical Manipulation</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c4:
+            st.markdown(f"""
+            <div class="metric-card-box">
+                <div class="metric-val">{clickbait}%</div>
+                <div class="metric-lbl">Clickbait Load</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         st.write("---")
 
-        # 3. SPLIT COLUMN DETAILED AUDIT
+        # 3. Two-Column Detailed Audit
         col_left, col_right = st.columns([1.2, 0.8], gap="large")
         
         with col_left:
-            st.markdown("### 📋 Forensic Reasoning Summary")
+            st.markdown("### 📋 Real-Time Grounding Forensic Reasoning")
             st.info(summary)
+            
+            if sources_found:
+                st.markdown("#### 🌐 Corroborating Real-World Sources Identified")
+                for s in sources_found:
+                    st.markdown(f'<div class="source-pill">📰 <strong>Verified Publisher/Record:</strong> {s}</div>', unsafe_allow_html=True)
             
             st.markdown("### 🎯 Atomic Claim Decomposition & Entailment")
             if claims:
@@ -408,17 +473,10 @@ if execute_audit:
                         <span style="color:{badge_color}; font-weight:800; font-size:12px;">[{status}]</span> {c.get('claim')}
                     </div>
                     """, unsafe_allow_html=True)
-                    
-            st.markdown("### 🔍 Flagged Article Markup")
-            if buzzwords:
-                with st.expander("View Interactive Highlighted Text", expanded=True):
-                    st.markdown(highlight_manipulative_phrases(body_val, buzzwords), unsafe_allow_html=True)
-            else:
-                st.success("Clean linguistic structure. Zero deceptive tokens highlighted in article body.")
 
         with col_right:
-            st.markdown("### 🧬 Cognitive Bias & Fallacy Matrix")
-            if fallacies:
+            st.markdown("### 🧬 Cognitive Bias & Fallacy Radar")
+            if fallacies and fallacies[0].get("name") != "None":
                 for f in fallacies:
                     st.markdown(f"""
                     <div class="bias-pill">
@@ -427,7 +485,7 @@ if execute_audit:
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                st.success("No critical logical fallacies or emotional manipulation detected.")
+                st.success("✔️ No cognitive biases or logical fallacies detected. Adheres to journalistic standards.")
                 
             st.markdown("### 🚩 Trigger Vocabulary Tokens")
             if buzzwords:
@@ -437,10 +495,10 @@ if execute_audit:
                 st.write("No suspicious tokens isolated.")
                 
             st.write("---")
-            st.markdown("### 🌐 Live Fact-Checking Verification")
+            st.markdown("### 🌐 Live Fact-Check Cross-Reference")
             
             factcheck_url = f"https://toolbox.google.com/factcheck/explorer/search/{requests.utils.quote(search_query)}"
-            st.link_button("🌐 Google Fact Check Database", factcheck_url, use_container_width=True)
+            st.link_button("🌐 Query Google Fact Check Explorer", factcheck_url, use_container_width=True)
             
             news_url = f"https://news.google.com/search?q={requests.utils.quote(search_query)}"
-            st.link_button("📰 Cross-Reference Global Wires", news_url, use_container_width=True)
+            st.link_button("📰 Cross-Reference Global News Wires", news_url, use_container_width=True)
