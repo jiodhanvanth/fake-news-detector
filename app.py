@@ -1,69 +1,75 @@
 import streamlit as st
-import requests
 import json
 import re
+import requests
 from bs4 import BeautifulSoup
 import trafilatura
-
-# Optional: Google GenAI SDK for live Gemini API integration
-try:
-    from google import genai
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
+from google import genai
+from google.genai import types
 
 st.set_page_config(
-    page_title="Veritas AI • Autonomous Claim Forensic Engine",
+    page_title="VeritasLens • Gemini AI Claim Forensic Engine",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom High-End Modern Dashboard Styling
+# Custom Glassmorphic Styling
 st.markdown("""
 <style>
-    .report-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
-        backdrop-filter: blur(10px);
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
     }
     .verdict-banner {
         padding: 16px 20px;
         border-radius: 12px;
         font-weight: 800;
-        font-size: 22px;
+        font-size: 20px;
         text-align: center;
         letter-spacing: 0.5px;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
     .verdict-real {
-        background: linear-gradient(90deg, #1b5e20, #2e7d32);
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
         color: #ffffff;
-        box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        box-shadow: 0 4px 15px rgba(46, 125, 50, 0.35);
     }
     .verdict-fake {
-        background: linear-gradient(90deg, #b71c1c, #d32f2f);
+        background: linear-gradient(135deg, #b71c1c, #d32f2f);
         color: #ffffff;
-        box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+        box-shadow: 0 4px 15px rgba(211, 47, 47, 0.35);
     }
     .verdict-sensational {
-        background: linear-gradient(90deg, #e65100, #f57c00);
+        background: linear-gradient(135deg, #e65100, #f57c00);
         color: #ffffff;
-        box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4);
+        box-shadow: 0 4px 15px rgba(245, 124, 0, 0.35);
     }
     .tag-badge {
         display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 13px;
         font-weight: 600;
-        background-color: rgba(255, 75, 75, 0.2);
+        background-color: rgba(255, 75, 75, 0.15);
         color: #ff4b4b;
         margin-right: 6px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        border: 1px solid rgba(255, 75, 75, 0.3);
+    }
+    .claim-box {
+        background: rgba(33, 150, 243, 0.08);
+        border-left: 4px solid #2196f3;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 8px;
+    }
+    .bias-card {
+        background: rgba(255, 193, 7, 0.08);
+        border-left: 4px solid #ffc107;
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -74,195 +80,205 @@ def scrape_article(url):
         downloaded = trafilatura.fetch_url(url)
         if downloaded:
             extracted_text = trafilatura.extract(downloaded)
-            if extracted_text and len(extracted_text) > 100:
-                # Try getting page title
-                soup = BeautifulSoup(downloaded, 'html.parser')
-                title = soup.title.string if soup.title else "Scraped News Article"
+            soup = BeautifulSoup(downloaded, 'html.parser')
+            title = soup.title.string if soup.title else "Extracted News Article"
+            if extracted_text and len(extracted_text) > 80:
                 return title.strip(), extracted_text.strip()
         
-        # Fallback basic scraper
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        res = requests.get(url, headers=headers, timeout=8)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        res = requests.get(url, headers=headers, timeout=6)
         soup = BeautifulSoup(res.text, 'html.parser')
-        title = soup.title.string if soup.title else "Scraped Article"
+        title = soup.title.string if soup.title else "Extracted News Article"
         paragraphs = [p.get_text() for p in soup.find_all('p')]
         text = " ".join(paragraphs)
         return title.strip(), text[:4000]
     except Exception as e:
-        return None, f"Scraping Error: {str(e)}"
+        return None, str(e)
 
-# ----------------- AI AUDIT ENGINE -----------------
-def run_ai_fact_check(headline, body, api_key=None):
+# ----------------- GEMINI AI FORENSIC AUDIT -----------------
+def run_gemini_audit(headline, body, api_key):
+    client = genai.Client(api_key=api_key)
+    
     prompt = f"""
-    Analyze the following news claim/article for factual credibility, manipulation, and sensationalism:
-    
-    HEADLINE: {headline}
-    CONTENT: {body[:2500]}
-    
-    Return a strictly valid JSON object with:
+    You are an expert investigative journalist, fact-checker, and forensic NLP linguist.
+    Audit the following news claim/article for authenticity, manipulation, factual grounding, and rhetoric:
+
+    ARTICLE HEADLINE / CORE CLAIM:
+    {headline}
+
+    ARTICLE CONTENT:
+    {body[:3500]}
+
+    Evaluate the content strictly and respond in JSON matching this schema:
     {{
-        "credibility_score": <int 0-100>,
-        "verdict": "<GENUINE | SENSATIONALIZED | FAKE>",
-        "summary_reasoning": "<2-sentence clear explanation of why this verdict was given>",
-        "fallacies_detected": ["<List of cognitive biases or logical fallacies, e.g. Appeal to Fear, Cherry-Picking>"],
-        "suspicious_phrases": ["<up to 4 phrases or buzzwords that trigger skepticism>"],
-        "key_claims_to_verify": ["<2 core factual assertions made by the text>"]
+      "verdict": "<GENUINE | SENSATIONALIZED | FAKE>",
+      "credibility_score": <integer from 0 to 100>,
+      "verdict_summary": "<2-3 sentence clear, objective explanation explaining the score and verdict>",
+      "key_claims_extracted": ["<Atomic claim 1>", "<Atomic claim 2>"],
+      "manipulative_phrases": ["<Specific suspicious, emotionally charged, or clickbait phrases found in text>"],
+      "fallacies_and_biases": [
+        {{
+          "name": "<Name of Logical Fallacy / Cognitive Bias, e.g. Appeal to Emotion, Cherry-Picking, False Dilemma, Anonymous Authority>",
+          "explanation": "<Short explanation of how this technique was used in the article>"
+        }}
+      ],
+      "verification_search_query": "<An optimal 4-6 word search query to verify this story on Google/Reuters/AP>"
     }}
     """
     
-    # Mode 1: Live Gemini API call if key provided
-    if api_key and GENAI_AVAILABLE:
-        try:
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-                config={"response_mime_type": "application/json"}
-            )
-            return json.loads(response.text)
-        except Exception as err:
-            st.warning(f"AI API fallback triggered: {err}")
-    
-    # Mode 2: High-Speed Built-in AI Cognitive Parser (works out-of-the-box with zero keys)
-    text_lower = f"{headline} {body}".lower()
-    manipulative_keywords = [
-        "shocking", "unbelievable", "secret", "miracle", "exposed", "conspiracy",
-        "urgent", "leaked", "danger", "mind-blowing", "banned", "cure", "corrupt", "alien"
-    ]
-    found_buzz = [w for w in manipulative_keywords if w in text_lower]
-    
-    # Scoring algorithm
-    sensational_weight = min(75, len(found_buzz) * 22)
-    has_caps = sum(1 for w in body.split() if w.isupper() and len(w) > 2)
-    sensational_weight += min(20, has_caps * 5)
-    
-    if sensational_weight > 50 or "cure" in text_lower and "all diseases" in text_lower:
-        score = max(8, 100 - sensational_weight)
-        verdict = "FAKE"
-        reasoning = "High concentration of sensationalism, unverified medical/scientific absolutes, and manipulative emotional phrasing detected."
-        fallacies = ["Appeal to Emotion (Fear/Wonder)", "Hasty Generalization", "Anonymous Authority"]
-    elif sensational_weight > 25:
-        score = 65
-        verdict = "SENSATIONALIZED"
-        reasoning = "Contains factual themes but utilizes clickbait syntax and exaggerated adjectives to attract clicks."
-        fallacies = ["Sensational Exaggeration", "Cherry-Picking"]
-    else:
-        score = 92
-        verdict = "GENUINE"
-        reasoning = "Neutral, journalistic tone with verified semantic flow, balanced sentence structures, and lack of manipulative trigger tokens."
-        fallacies = ["None Detected"]
-        
-    return {
-        "credibility_score": score,
-        "verdict": verdict,
-        "summary_reasoning": reasoning,
-        "fallacies_detected": fallacies,
-        "suspicious_phrases": found_buzz if found_buzz else ["No alarming phrasing"],
-        "key_claims_to_verify": [headline[:80] if headline else "Primary subject assertion"]
-    }
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0.1
+        )
+    )
+    return json.loads(response.text)
 
 # ----------------- SIDEBAR CONTROLS -----------------
 with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=64)
-    st.title("Veritas Settings")
-    st.caption("AI-Powered Autonomous News Forensic System")
+    st.image("https://img.icons8.com/fluency/96/shield.png", width=60)
+    st.title("VeritasLens AI")
+    st.caption("Powered by Google Gemini 2.5 Flash")
     
     api_key_input = st.text_input(
-        "Google Gemini API Key (Optional)", 
+        "Enter Gemini API Key", 
         type="password", 
-        help="Optional: Paste a free Gemini API Key for direct live LLM execution, or leave blank to use the built-in AI Heuristic engine."
+        placeholder="AIzaSy...",
+        help="Get a free key from Google AI Studio (aistudio.google.com)"
     )
     
     st.divider()
-    st.markdown("### 🔍 Model Architecture")
-    st.write("• **Content Extraction:** Trafilatura & BeautifulSoup4")
-    st.write("• **Reasoning:** Zero-Shot Cognitive Audit")
-    st.write("• **Special Feature:** Bias & Fallacy Matrix")
+    st.markdown("### 🧪 Quick Demo Presets")
+    preset_choice = st.selectbox(
+        "Load test scenario:",
+        ["Select a scenario...", "1. Verified Science & Space News", "2. Fabricated Miracle Cure", "3. Sensational Clickbait"]
+    )
+    
+    st.divider()
+    st.markdown("### 🧬 AI Inspection Pipeline")
+    st.write("• **Article Scraper:** Strips ads, scripts & boilerplates")
+    st.write("• **Neural Verification:** Gemini 2.5 Flash Reasoning")
+    st.write("• **Forensic Layer:** Bias & Cognitive Fallacy Radar")
+
+# Preset Samples
+default_title = "ISRO conducts successful test of indigenous cryogenic stage"
+default_body = "The Indian Space Research Organisation (ISRO) successfully conducted the hot test of the CE-20 cryogenic engine. The engine was tested in a multi-restart configuration at the Propulsion Complex in Mahendragiri, meeting all performance benchmarks."
+
+if preset_choice == "2. Fabricated Miracle Cure":
+    default_title = "SHOCKING secret cure leaked online cures all illnesses in 24 hours!"
+    default_body = "URGENT! Corrupt doctors are furious after a leaked miracle herb exposes the entire medical industry. This secret remedy cures all diseases overnight and billionaires are actively trying to ban it from the public!"
+elif preset_choice == "3. Sensational Clickbait":
+    default_title = "Mind-blowing tax change that will shock every citizen tomorrow"
+    default_body = "Authorities have announced a minor procedural update in tax documentation filing dates, but financial bloggers claim this unexpected move will alter personal budgeting plans across the country."
 
 # ----------------- MAIN UI -----------------
-st.title("🛡️ Veritas AI: Autonomous News & Claim Verifier")
-st.markdown("Paste a **Live Article URL** or enter text manually to run a multi-layered AI authenticity audit.")
+st.title("🛡️ VeritasLens: Autonomous AI Claim Forensic Engine")
+st.markdown("Paste a **Live News URL** or enter text manually to perform a deep neural authenticity audit.")
 
-tab1, tab2 = st.tabs(["🌐 Scan by Live Article URL", "✍️ Scan by Direct Text"])
+tab_url, tab_text = st.tabs(["🌐 Extract from Live News URL", "✍️ Custom Text Input"])
 
-input_title = ""
-input_text = ""
+target_title = default_title
+target_body = default_body
 
-with tab1:
+with tab_url:
     col_u1, col_u2 = st.columns([4, 1])
     with col_u1:
-        article_url = st.text_input("Enter Article URL", placeholder="https://www.bbc.com/news/... or blog link")
+        input_url = st.text_input("Paste News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV link")
     with col_u2:
         fetch_btn = st.button("Fetch & Parse", use_container_width=True)
         
-    if fetch_btn and article_url:
-        with st.spinner("Scraping and stripping boilerplate text from URL..."):
-            extracted_title, extracted_body = scrape_article(article_url)
-            if extracted_title:
-                input_title = extracted_title
-                input_text = extracted_body
+    if fetch_btn and input_url:
+        with st.spinner("Scraping clean article body from source..."):
+            extracted_title, extracted_body = scrape_article(input_url)
+            if extracted_title and len(extracted_body) > 40:
+                target_title = extracted_title
+                target_body = extracted_body
                 st.success(f"Extracted: **{extracted_title}**")
             else:
-                st.error("Could not parse article from this URL. Try pasting text manually in Tab 2.")
+                st.error("Could not extract clean text from this URL. Try pasting manually in the next tab.")
 
-with tab2:
-    if not input_title:
-        input_title = st.text_input("Headline / Key Claim", value="ISRO conducts successful test of indigenous cryogenic stage")
-    if not input_text:
-        input_text = st.text_area("Article Content", height=180, value="The Indian Space Research Organisation (ISRO) successfully conducted the qualification test of its high-thrust cryogenic engine. Telemetry data confirmed all operational parameters met mission standards.")
+with tab_text:
+    target_title = st.text_input("Headline / Key Assertion", value=target_title)
+    target_body = st.text_area("Article Body / Summary", height=160, value=target_body)
 
-analyze_trigger = st.button("🚀 Run Comprehensive AI Verification Audit", type="primary", use_container_width=True)
+run_audit_btn = st.button("🚀 Run Comprehensive Gemini AI Audit", type="primary", use_container_width=True)
 
-# ----------------- EXECUTION & AUDIT DASHBOARD -----------------
-if analyze_trigger and input_text.strip():
-    with st.spinner("Running AI Forensic Audit..."):
-        audit = run_ai_fact_check(input_title, input_text, api_key=api_key_input)
-        
-        score = audit.get("credibility_score", 50)
-        verdict = audit.get("verdict", "SENSATIONALIZED").upper()
-        reasoning = audit.get("summary_reasoning", "Analysis complete.")
-        fallacies = audit.get("fallacies_detected", [])
-        buzzwords = audit.get("suspicious_phrases", [])
-        claims = audit.get("key_claims_to_verify", [])
+# ----------------- RESULTS DASHBOARD -----------------
+if run_audit_btn:
+    if not api_key_input:
+        st.error("⚠️ Please enter your Gemini API Key in the left sidebar to run the AI verification.")
+    elif not target_body.strip():
+        st.error("⚠️ Please enter an article body or scrape a valid URL first.")
+    else:
+        with st.spinner("Gemini 2.5 Flash is analyzing claims, rhetoric, and logical validity..."):
+            try:
+                result = run_gemini_audit(target_title, target_body, api_key_input)
+                
+                verdict = result.get("verdict", "SENSATIONALIZED").upper()
+                score = result.get("credibility_score", 50)
+                summary = result.get("verdict_summary", "Audit completed.")
+                claims = result.get("key_claims_extracted", [])
+                buzzwords = result.get("manipulative_phrases", [])
+                fallacies = result.get("fallacies_and_biases", [])
+                search_query = result.get("verification_search_query", target_title)
+                
+                st.write("---")
+                col_left, col_right = st.columns([1.15, 0.85], gap="large")
+                
+                with col_left:
+                    # Dynamic Verdict Banner
+                    if verdict == "GENUINE":
+                        st.markdown('<div class="verdict-banner verdict-real">✅ AI VERDICT: VERIFIED / CREDIBLE CONTENT</div>', unsafe_allow_html=True)
+                    elif verdict == "FAKE":
+                        st.markdown('<div class="verdict-banner verdict-fake">🚨 AI VERDICT: UNRELIABLE / FABRICATED CLAIM</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown('<div class="verdict-banner verdict-sensational">⚠️ AI VERDICT: SENSATIONALIZED / MISLEADING</div>', unsafe_allow_html=True)
+                        
+                    st.markdown("### 📋 AI Forensic Reasoning")
+                    st.info(summary)
+                    
+                    st.markdown("### 🎯 Core Factual Claims Identified")
+                    for c in claims:
+                        st.markdown(f'<div class="claim-box">📌 {c}</div>', unsafe_allow_html=True)
+                        
+                    st.markdown("### 🧬 Cognitive Bias & Fallacy Matrix")
+                    if fallacies:
+                        for item in fallacies:
+                            f_name = item.get("name", "Cognitive Bias")
+                            f_desc = item.get("explanation", "")
+                            st.markdown(f"""
+                            <div class="bias-card">
+                                <strong>⚠️ {f_name}</strong><br>
+                                <small style="opacity:0.9;">{f_desc}</small>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.success("No logical fallacies or manipulative biases detected.")
 
-    st.write("---")
-    
-    # 2-Column Responsive Dashboard Layout
-    col_left, col_right = st.columns([1.1, 0.9], gap="large")
-    
-    with col_left:
-        # Dynamic Verdict Banner
-        if verdict == "GENUINE":
-            st.markdown('<div class="verdict-banner verdict-real">✅ AI VERDICT: VERIFIED / CREDIBLE</div>', unsafe_allow_html=True)
-        elif verdict == "FAKE":
-            st.markdown('<div class="verdict-banner verdict-fake">🚨 AI VERDICT: UNRELIABLE / FAKE NEWS</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="verdict-banner verdict-sensational">⚠️ AI VERDICT: HIGHLY SENSATIONALIZED / MISLEADING</div>', unsafe_allow_html=True)
-            
-        st.markdown(f"### 📋 AI Audit Summary")
-        st.info(reasoning)
-        
-        st.markdown("#### 🎯 Core Claims Identified for Fact-Checking")
-        for claim in claims:
-            st.markdown(f"- *\"{claim}\"*")
-            
-        st.markdown("#### 🚨 Suspicious / Manipulative Phrases Flagged")
-        if buzzwords and buzzwords[0] != "No alarming phrasing":
-            for b in buzzwords:
-                st.markdown(f'<span class="tag-badge">{b.upper()}</span>', unsafe_allow_html=True)
-        else:
-            st.success("No emotionally manipulative or deceptive buzzwords detected.")
-
-    with col_right:
-        st.markdown("### 📊 Credibility Index")
-        st.metric(label="Calculated Reliability Score", value=f"{score} / 100")
-        st.progress(score / 100)
-        
-        st.write("---")
-        st.markdown("### 🧬 Special Feature: Fallacy & Bias Matrix")
-        st.write("AI analysis of logical flaws and rhetorical manipulation techniques:")
-        for fallacy in fallacies:
-            if fallacy == "None Detected":
-                st.success("✔️ No cognitive biases or logical fallacies detected in text.")
-            else:
-                st.warning(f"⚠️ **{fallacy}**")
+                with col_right:
+                    st.markdown("### 📊 Credibility Score")
+                    st.metric(label="Calculated Authenticity Index", value=f"{score} / 100")
+                    st.progress(score / 100)
+                    
+                    st.write("---")
+                    st.markdown("### 🚩 Manipulative / Deceptive Phrases")
+                    if buzzwords:
+                        for b in buzzwords:
+                            st.markdown(f'<span class="tag-badge">⚠️ "{b}"</span>', unsafe_allow_html=True)
+                    else:
+                        st.success("Clean linguistic structure. No suspicious phrases flagged.")
+                        
+                    st.write("---")
+                    st.markdown("### 🔍 Live Fact-Check Triangulation")
+                    st.write("Cross-verify the core assertions on global databases:")
+                    
+                    factcheck_url = f"https://toolbox.google.com/factcheck/explorer/search/{requests.utils.quote(search_query)}"
+                    st.link_button("🌐 Check Google Fact Check Explorer", factcheck_url, use_container_width=True)
+                    
+                    google_news_url = f"https://news.google.com/search?q={requests.utils.quote(search_query)}"
+                    st.link_button("📰 Cross-Reference Live News Outlets", google_news_url, use_container_width=True)
+                    
+            except Exception as e:
+                st.error(f"Error during AI analysis: {str(e)}")
