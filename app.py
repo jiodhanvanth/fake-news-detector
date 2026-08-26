@@ -28,7 +28,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Cyber Glassmorphism & Modern Typography CSS
+# Custom Cyber Glassmorphism & High-Contrast Typography
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -37,17 +37,23 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
+    /* Global App Background Accents */
+    .stApp {
+        background: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.04) 0%, transparent 40%);
+    }
+
     /* Hero Header */
     .hero-container {
-        padding: 6px 0 20px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 8px 0 22px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         margin-bottom: 24px;
     }
     .hero-title {
-        font-size: 38px;
+        font-size: 40px;
         font-weight: 800;
-        letter-spacing: -0.8px;
-        background: linear-gradient(135deg, #60a5fa 0%, #c084fc 45%, #f472b6 100%);
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 4px;
@@ -56,107 +62,132 @@ st.markdown("""
         font-size: 14px;
         color: #94a3b8;
         font-weight: 500;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
     .author-badge {
         display: inline-flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 10px;
         font-size: 12px;
         color: #e2e8f0;
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 6px 14px;
-        border-radius: 10px;
-    }
-    
-    /* Sidebar Modern Glassmorphic Cards */
-    .sidebar-brand-card {
-        background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(192, 132, 252, 0.05));
-        border: 1px solid rgba(96, 165, 250, 0.25);
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    .sidebar-tech-card {
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 7px 16px;
         border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 12px;
-        transition: all 0.2s ease;
-    }
-    .sidebar-tech-card:hover {
-        border-color: rgba(96, 165, 250, 0.35);
-        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
     }
     
-    /* Status Beacon */
-    .pulse-pill {
+    /* Sidebar Redesign: Command Center UI */
+    .sidebar-brand-hub {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.4));
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+    }
+    .sidebar-brand-hub::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+    }
+    
+    .status-beacon {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 5px 14px;
-        border-radius: 9999px;
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.6px;
-        background: rgba(34, 197, 94, 0.12);
-        color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.35);
-        margin-bottom: 15px;
+        letter-spacing: 0.8px;
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.08);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
     }
-    .pulse-dot {
-        width: 8px;
-        height: 8px;
+    .beacon-glow {
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background-color: #22c55e;
-        box-shadow: 0 0 10px #22c55e;
+        background-color: #38bdf8;
+        box-shadow: 0 0 10px #38bdf8;
+        animation: pulseAnimation 2s infinite ease-in-out;
+    }
+    @keyframes pulseAnimation {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.6; }
     }
 
-    /* Verdict Result Banners */
+    .pipeline-node {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        transition: all 0.25s ease;
+    }
+    .pipeline-node:hover {
+        border-color: rgba(129, 140, 248, 0.4);
+        background: rgba(129, 140, 248, 0.04);
+        transform: translateY(-1px);
+    }
+
+    /* Dynamic Verdict Cards */
     .verdict-banner {
-        padding: 22px 28px;
-        border-radius: 16px;
+        padding: 24px 30px;
+        border-radius: 18px;
         font-weight: 800;
         font-size: 22px;
         text-align: center;
         letter-spacing: 0.5px;
         margin-bottom: 24px;
-        backdrop-filter: blur(14px);
+        backdrop-filter: blur(16px);
     }
     .verdict-genuine {
-        background: linear-gradient(135deg, rgba(5, 150, 105, 0.25), rgba(16, 185, 129, 0.15));
-        border: 1px solid #10b981;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.08));
+        border: 1px solid rgba(16, 185, 129, 0.4);
         color: #34d399;
-        box-shadow: 0 8px 32px rgba(16, 185, 129, 0.25);
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
     }
     .verdict-fake {
-        background: linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.15));
-        border: 1px solid #ef4444;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(185, 28, 28, 0.08));
+        border: 1px solid rgba(239, 68, 68, 0.4);
         color: #f87171;
-        box-shadow: 0 8px 32px rgba(239, 68, 68, 0.25);
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.15);
     }
     .verdict-sensational {
-        background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(249, 115, 22, 0.15));
-        border: 1px solid #f97316;
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(194, 65, 12, 0.08));
+        border: 1px solid rgba(249, 115, 22, 0.4);
         color: #fb923c;
-        box-shadow: 0 8px 32px rgba(249, 115, 22, 0.25);
+        box-shadow: 0 10px 40px rgba(249, 115, 22, 0.15);
     }
 
-    /* Telemetry Cards */
-    .metric-card-box {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 16px 14px;
+    /* Telemetry HUD Cards */
+    .metric-hud-box {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 16px;
+        padding: 18px 14px;
         text-align: center;
         margin-bottom: 12px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .metric-hud-box:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
     }
     .metric-val {
-        font-size: 28px;
+        font-size: 30px;
         font-weight: 800;
         color: #f8fafc;
         margin-bottom: 2px;
@@ -165,15 +196,15 @@ st.markdown("""
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.7px;
         color: #94a3b8;
     }
 
     /* Claim & Entity Cards */
     .claim-item {
-        background: rgba(59, 130, 246, 0.06);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-left: 4px solid #3b82f6;
+        background: rgba(56, 189, 248, 0.04);
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        border-left: 4px solid #38bdf8;
         padding: 14px 18px;
         border-radius: 0 12px 12px 0;
         margin-bottom: 10px;
@@ -181,8 +212,8 @@ st.markdown("""
         line-height: 1.5;
     }
     .source-item {
-        background: rgba(16, 185, 129, 0.06);
-        border: 1px solid rgba(16, 185, 129, 0.2);
+        background: rgba(16, 185, 129, 0.04);
+        border: 1px solid rgba(16, 185, 129, 0.18);
         border-left: 4px solid #10b981;
         padding: 12px 16px;
         border-radius: 0 10px 10px 0;
@@ -190,8 +221,8 @@ st.markdown("""
         font-size: 13px;
     }
     .bias-pill {
-        background: rgba(245, 158, 11, 0.08);
-        border: 1px solid rgba(245, 158, 11, 0.25);
+        background: rgba(245, 158, 11, 0.05);
+        border: 1px solid rgba(245, 158, 11, 0.2);
         border-left: 4px solid #f59e0b;
         padding: 14px 18px;
         border-radius: 0 12px 12px 0;
@@ -204,23 +235,23 @@ st.markdown("""
         font-size: 12px;
         font-weight: 700;
         font-family: 'JetBrains Mono', monospace;
-        background: rgba(239, 68, 68, 0.15);
+        background: rgba(239, 68, 68, 0.12);
         color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.3);
+        border: 1px solid rgba(239, 68, 68, 0.25);
         margin: 3px 6px 3px 0;
     }
     .highlight-manipulation {
-        background-color: rgba(239, 68, 68, 0.28);
+        background-color: rgba(239, 68, 68, 0.25);
         border-bottom: 2px solid #ef4444;
         padding: 2px 5px;
         border-radius: 4px;
         font-weight: 600;
     }
 
-    /* Discrete Footer */
+    /* Refined Footer */
     .neural-footer {
         margin-top: 50px;
-        padding: 20px 22px;
+        padding: 22px 24px;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         display: flex;
         justify-content: space-between;
@@ -237,9 +268,9 @@ st.markdown("""
         gap: 6px;
         padding: 5px 14px;
         border-radius: 20px;
-        background: rgba(96, 165, 250, 0.08);
-        border: 1px solid rgba(96, 165, 250, 0.2);
-        color: #60a5fa;
+        background: rgba(56, 189, 248, 0.06);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        color: #38bdf8;
         font-weight: 600;
     }
 </style>
@@ -253,7 +284,7 @@ if "article_body" not in st.session_state:
 
 API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 
-# ----------------- HIGH-ACCURACY DOM ARTICLE SCRAPER -----------------
+# ----------------- DOM ARTICLE SCRAPER -----------------
 def scrape_article_data(url):
     """Extracts clean headline and body text while stripping DOM boilerplates and ads."""
     try:
@@ -357,7 +388,7 @@ def execute_grounded_forensics(headline, body, key):
         model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
-            tools=[{"google_search": {}}],  # Live Real-Time Search Grounding
+            tools=[{"google_search": {}}],
             temperature=0.1
         )
     )
@@ -381,48 +412,53 @@ def highlight_manipulative_phrases(text, phrases):
         highlighted = pattern.sub(r'<span class="highlight-manipulation">\1</span>', highlighted)
     return highlighted
 
-# ----------------- SIDEBAR: REDESIGNED CONTROL HUB -----------------
+# ----------------- SIDEBAR: COMMAND CENTER REDESIGN -----------------
 with st.sidebar:
-    st.markdown('<div class="pulse-pill"><div class="pulse-dot"></div>NEURAL ENGINE ONLINE</div>', unsafe_allow_html=True)
-    
-    # Institution & Developer Card
+    # Sleek Brand Card with Cyber Neon Beacon
     st.markdown("""
-    <div class="sidebar-brand-card">
-        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:#60a5fa; font-weight:700;">Academic Project</div>
-        <div style="font-size:16px; font-weight:800; color:#f8fafc; margin-top:2px;">VeritasLens™ AI</div>
+    <div class="sidebar-brand-hub">
+        <div class="status-beacon">
+            <div class="beacon-glow"></div>
+            Neural Core Online
+        </div>
+        <div style="font-size:18px; font-weight:800; color:#f8fafc; letter-spacing:-0.3px;">VeritasLens™</div>
         <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Class 11 Computer Science</div>
-        <div style="font-size:11px; color:#c084fc; font-weight:600; margin-top:4px;">🏫 Sree Gokulam Public School, Chengalpattu</div>
-        <hr style="margin:10px 0; border-color:rgba(255,255,255,0.08);">
-        <div style="font-size:12px;">👑 <strong>Lead Developer:</strong><br><span style="color:#60a5fa; font-weight:700;">DHANVANTH CR</span></div>
-        <div style="font-size:12px; margin-top:6px;">🤝 <strong>Assistant Developer:</strong><br><span style="color:#38bdf8; font-weight:700;">JANESH S</span></div>
+        <div style="font-size:11px; color:#38bdf8; font-weight:600; margin-top:4px;">🏫 Sree Gokulam Public School, Chengalpattu</div>
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:12px; color:#e2e8f0;">
+            👑 <strong>Lead Architect:</strong> <span style="color:#818cf8; font-weight:700;">DHANVANTH CR</span>
+        </div>
+        <div style="font-size:12px; color:#e2e8f0; margin-top:4px;">
+            🤝 <strong>Assistant Developer:</strong> <span style="color:#38bdf8; font-weight:700;">JANESH S</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### ⚙️ Forensic Pipeline")
+    st.markdown("### ⚡ Live Telemetry Vector")
     st.markdown("""
-    <div class="sidebar-tech-card">
-        <div style="display:flex; align-items:center; gap:8px;">
+    <div class="pipeline-node">
+        <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:16px;">🌐</span>
             <div>
-                <strong style="color:#60a5fa; font-size:13px;">Live Web Grounding</strong><br>
-                <small style="color:#94a3b8;">Queries global news indexes in real-time.</small>
+                <strong style="color:#38bdf8; font-size:13px;">Live Web Grounding</strong><br>
+                <small style="color:#94a3b8;">Queries global news indexes in real time.</small>
             </div>
         </div>
     </div>
-    <div class="sidebar-tech-card">
-        <div style="display:flex; align-items:center; gap:8px;">
+    <div class="pipeline-node">
+        <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:16px;">🧠</span>
             <div>
-                <strong style="color:#c084fc; font-size:13px;">Neural Claim Entailment</strong><br>
+                <strong style="color:#818cf8; font-size:13px;">Neural Claim Entailment</strong><br>
                 <small style="color:#94a3b8;">Decomposes & validates atomic facts.</small>
             </div>
         </div>
     </div>
-    <div class="sidebar-tech-card">
-        <div style="display:flex; align-items:center; gap:8px;">
+    <div class="pipeline-node">
+        <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:16px;">🎯</span>
             <div>
-                <strong style="color:#f472b6; font-size:13px;">Cognitive Bias Radar</strong><br>
+                <strong style="color:#c084fc; font-size:13px;">Cognitive Bias Radar</strong><br>
                 <small style="color:#94a3b8;">Exposes logical fallacies & clickbait.</small>
             </div>
         </div>
@@ -430,9 +466,9 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.divider()
-    st.markdown("### 🧪 Instant Demo Benchmarks")
+    st.markdown("### 🧪 Instant Benchmarks")
     
-    if st.button("🛰️ Scenario 1: Space & Tech Wire", use_container_width=True):
+    if st.button("🛰️ Scenario 1: Space Science Wire", use_container_width=True):
         st.session_state.article_title = "ISRO successfully validates restart capability of cryogenic upper stage engine"
         st.session_state.article_body = "The Indian Space Research Organisation (ISRO) successfully conducted the qualification hot test of the CE-20 cryogenic engine at the Propulsion Complex in Mahendragiri, confirming all nominal parameters for upcoming heavy payload missions."
         st.rerun()
@@ -462,7 +498,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Clean, Focused Ingestion Tabs
+# Ingestion Modalities
 tab_url, tab_text, tab_file = st.tabs([
     "🌐 Ingest via Live Web URL", 
     "✍️ Direct Article / Claim Input", 
@@ -472,10 +508,8 @@ tab_url, tab_text, tab_file = st.tabs([
 with tab_url:
     col_u1, col_u2 = st.columns([4.2, 1])
     with col_u1:
-        url_input = st.text_input("Enter Live News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link")
+        url_input = st.text_input("Enter Live News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link", label_visibility="collapsed")
     with col_u2:
-        st.write("")
-        st.write("")
         scrape_btn = st.button("Extract Article", use_container_width=True)
 
     if scrape_btn and url_input:
@@ -582,28 +616,28 @@ if execute_audit:
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             st.markdown(f"""
-            <div class="metric-card-box">
+            <div class="metric-hud-box">
                 <div class="metric-val">{score}%</div>
                 <div class="metric-lbl">Authenticity Index</div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
             st.markdown(f"""
-            <div class="metric-card-box">
+            <div class="metric-hud-box">
                 <div class="metric-val">{grounding}%</div>
                 <div class="metric-lbl">Factual Grounding</div>
             </div>
             """, unsafe_allow_html=True)
         with c3:
             st.markdown(f"""
-            <div class="metric-card-box">
+            <div class="metric-hud-box">
                 <div class="metric-val">{distortion}%</div>
                 <div class="metric-lbl">Rhetorical Manipulation</div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
             st.markdown(f"""
-            <div class="metric-card-box">
+            <div class="metric-hud-box">
                 <div class="metric-val">{clickbait}%</div>
                 <div class="metric-lbl">Clickbait Load</div>
             </div>
@@ -702,7 +736,7 @@ st.markdown("""
 <div class="neural-footer">
     <div>VeritasLens™ Protocol • Class 11 CS Project | Created & Developed by <strong>DHANVANTH CR</strong>, Assisted by <strong>JANESH S</strong> | <strong>Sree Gokulam Public School, Chengalpattu</strong></div>
     <div class="subtle-badge">
-        <span style="width:6px; height:6px; border-radius:50%; background-color:#60a5fa; display:inline-block;"></span>
+        <span style="width:6px; height:6px; border-radius:50%; background-color:#38bdf8; display:inline-block;"></span>
         Grounded via Deep Neural Intelligence Core
     </div>
 </div>
