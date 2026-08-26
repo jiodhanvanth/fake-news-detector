@@ -1,4 +1,5 @@
 streamlit
-scikit-learn
-textblob
 requests
+beautifulsoup4
+trafilatura
+google-genai
