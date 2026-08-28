@@ -1,9 +1,9 @@
 """
 ====================================================================================
-PROJECT: VeritasLens™ — Autonomous Neural News & Forensic Claim Intelligence Suite
+PROJECT: VeritasLens™ — Smart AI News & Fact-Checker
 INSTITUTION: Sree Gokulam Public School, Chengalpattu
 COURSE: Class 11 Computer Science
-LEAD ARCHITECT & DEVELOPER: DHANVANTH CR
+LEAD DEVELOPER: DHANVANTH CR
 ASSISTANT DEVELOPER: JANESH S
 ====================================================================================
 """
@@ -23,13 +23,13 @@ from google.genai import types
 
 # ----------------- PAGE CONFIGURATION -----------------
 st.set_page_config(
-    page_title="VeritasLens™ | Autonomous Neural Intelligence",
+    page_title="VeritasLens™ | Smart AI News & Fact-Checker",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ----------------- ULTRA CYBER-GLASSMORPHIC CSS STYLING -----------------
+# ----------------- CLEAN MODERN UI STYLING -----------------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
@@ -40,23 +40,23 @@ st.markdown("""
     
     /* Background Ambient Gradients */
     .stApp {
-        background-color: #080b11;
+        background-color: #090d16;
         background-image: 
-            radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 35%),
+            radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.08) 0%, transparent 35%),
+            radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 45%);
     }
 
-    /* Hero Branding Header */
+    /* Hero Header */
     .hero-container {
-        padding: 10px 0 24px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        margin-bottom: 26px;
+        padding: 8px 0 20px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        margin-bottom: 24px;
     }
     .hero-title {
-        font-size: 42px;
+        font-size: 40px;
         font-weight: 800;
-        letter-spacing: -1.2px;
+        letter-spacing: -1px;
         background: linear-gradient(135deg, #38bdf8 0%, #818cf8 40%, #c084fc 75%, #f472b6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -64,11 +64,10 @@ st.markdown("""
         display: inline-block;
     }
     .hero-subtitle {
-        font-size: 14px;
+        font-size: 15px;
         color: #94a3b8;
         font-weight: 500;
-        margin-bottom: 14px;
-        letter-spacing: 0.2px;
+        margin-bottom: 12px;
     }
     
     .author-badge {
@@ -78,18 +77,17 @@ st.markdown("""
         gap: 12px;
         font-size: 12px;
         color: #e2e8f0;
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.09);
         padding: 8px 18px;
         border-radius: 9999px;
         backdrop-filter: blur(16px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
     
     /* Command Hub Sidebar */
     .sidebar-brand-hub {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.4));
-        border: 1px solid rgba(148, 163, 184, 0.15);
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.5));
+        border: 1px solid rgba(148, 163, 184, 0.18);
         border-radius: 18px;
         padding: 20px 18px;
         margin-bottom: 20px;
@@ -120,7 +118,7 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.25);
         padding: 4px 12px;
         border-radius: 20px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         text-transform: uppercase;
     }
     .beacon-glow {
@@ -150,7 +148,7 @@ st.markdown("""
         transform: translateX(2px);
     }
 
-    /* High-Impact Verdict Banners */
+    /* Verdict Banners */
     .verdict-banner {
         padding: 24px 32px;
         border-radius: 20px;
@@ -160,19 +158,6 @@ st.markdown("""
         letter-spacing: 0.5px;
         margin-bottom: 24px;
         backdrop-filter: blur(20px);
-        position: relative;
-        overflow: hidden;
-    }
-    .verdict-banner::after {
-        content: "";
-        position: absolute;
-        top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-        animation: sweep 4s infinite;
-    }
-    @keyframes sweep {
-        0% { left: -100%; }
-        50%, 100% { left: 150%; }
     }
     .verdict-genuine {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(5, 150, 105, 0.06));
@@ -193,7 +178,7 @@ st.markdown("""
         box-shadow: 0 10px 40px rgba(249, 115, 22, 0.18);
     }
 
-    /* Telemetry HUD Cards with Visual Meters */
+    /* Clean Score Cards */
     .metric-hud-box {
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -215,10 +200,10 @@ st.markdown("""
         margin-bottom: 2px;
     }
     .metric-lbl {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.6px;
         color: #94a3b8;
         margin-bottom: 10px;
     }
@@ -235,7 +220,7 @@ st.markdown("""
         transition: width 0.8s ease-in-out;
     }
 
-    /* Structured Forensic Cards */
+    /* Structured Result Cards */
     .claim-item {
         background: rgba(56, 189, 248, 0.03);
         border: 1px solid rgba(56, 189, 248, 0.18);
@@ -283,18 +268,17 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Sub-Header Section Styling */
     .section-header {
         font-size: 18px;
         font-weight: 700;
         color: #f1f5f9;
-        margin: 20px 0 12px 0;
+        margin: 22px 0 12px 0;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    /* Executive Footer */
+    /* Footer */
     .neural-footer {
         margin-top: 50px;
         padding: 22px 24px;
@@ -306,7 +290,6 @@ st.markdown("""
         gap: 12px;
         font-size: 12px;
         color: #94a3b8;
-        letter-spacing: 0.3px;
     }
     .subtle-badge {
         display: inline-flex;
@@ -330,75 +313,70 @@ if "article_body" not in st.session_state:
 
 API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 
-# ----------------- DOM ARTICLE SCRAPER -----------------
+# ----------------- CLEAN WEB SCRAPER -----------------
 def scrape_article_data(url):
-    """Extracts clean headline and body text while stripping DOM boilerplates and ads."""
+    """Extracts headline and clean body text from web links."""
     try:
         downloaded = trafilatura.fetch_url(url)
         if downloaded:
             extracted_text = trafilatura.extract(downloaded)
             soup = BeautifulSoup(downloaded, 'html.parser')
-            title = soup.title.string if soup.title else "Extracted News Article"
+            title = soup.title.string if soup.title else "News Article"
             if extracted_text and len(extracted_text) > 50:
                 return title.strip(), extracted_text.strip()
         
-        # Fallback Scraper
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         res = requests.get(url, headers=headers, timeout=8)
         soup = BeautifulSoup(res.text, 'html.parser')
-        title = soup.title.string if soup.title else "Extracted News Article"
+        title = soup.title.string if soup.title else "News Article"
         paras = [p.get_text() for p in soup.find_all('p') if len(p.get_text()) > 20]
         body = " ".join(paras)
         if len(body) > 50:
             return title.strip(), body[:4000]
-        return None, "Extraction restricted or paywalled by source site."
+        return None, "Unable to extract text from this website."
     except Exception as e:
         return None, str(e)
 
-# ----------------- HEURISTIC STYLOMETRIC SCANNER -----------------
+# ----------------- QUICK STYLOMETRIC SCANNER -----------------
 def run_stylometric_nlp_scan(text):
-    """Evaluates lexical sentiment, clickbait density, and emotional triggers."""
+    """Scans for clickbait and emotional wording."""
     blob = TextBlob(text)
     subjectivity = round(blob.sentiment.subjectivity * 100, 1)
     
     words = re.findall(r'\b\w+\b', text.lower())
-    sensational_lexicon = {
+    sensational_words = {
         "shocking", "unbelievable", "secret", "miracle", "exposed", "conspiracy",
         "urgent", "leaked", "danger", "mind-blowing", "banned", "cure", "corrupt",
         "aliens", "hidden", "proven", "coverup", "scandal", "magic", "forbidden"
     }
-    flagged_tokens = list(set([w for w in words if w in sensational_lexicon]))
+    flagged_tokens = list(set([w for w in words if w in sensational_words]))
     caps_shouting = [w for w in text.split() if w.isupper() and len(w) > 2 and w.isalpha()]
     
     clickbait_load = min(100, int((len(flagged_tokens) * 18) + (len(caps_shouting) * 5) + (subjectivity * 0.3)))
     return flagged_tokens, clickbait_load
 
-# ----------------- REAL-TIME GROUNDED NEURAL ENGINE -----------------
+# ----------------- LIVE GROUNDED AI FACT-CHECKER -----------------
 def execute_grounded_forensics(headline, body, key):
-    """
-    Executes deep semantic reasoning using Google Search Grounding to verify
-    factual claims against verified real-world news indexes.
-    """
+    """Verifies story occurrence using real-time search grounding."""
     client = genai.Client(api_key=key)
     
     prompt = f"""
-    You are VeritasLens Real-Time Neural Core.
-    You have access to live Google Search Grounding.
+    You are VeritasLens Smart AI News Verifier.
+    You have live access to Google Search to fact-check the following news story.
     
-    CRITICAL INSTRUCTION:
-    First, execute live searches to verify if the following news story, claim, or event actually happened in real-world reporting from reputable sources (e.g. ISRO, NASA, BBC, Reuters, The Hindu, AP, PIB, Government Gazettes, Nature, etc.).
-    
-    - If reputable mainstream news sources confirm this story, classify it as GENUINE with a high credibility score (85-98) regardless of technical terminology.
-    - If the story is an unsubstantiated conspiracy, internet hoax, or medical myth that is debunked or unverified online, classify it as FAKE with a low score (5-30).
-    - If it is based on a real event but heavily exaggerated with clickbait phrasing, classify it as SENSATIONALIZED (50-75).
+    INSTRUCTIONS:
+    1. Check if reputable news outlets (BBC, ISRO, The Hindu, Reuters, PIB, NASA, AP, etc.) have verified or documented this event.
+    2. If reputable sources confirm it, mark it as GENUINE with a high score (85-98).
+    3. If it is a debunked rumor, internet hoax, or medical myth, mark it as FAKE with a low score (5-30).
+    4. If based on real events but exaggerated with clickbait, mark it as SENSATIONALIZED (50-75).
 
-    HEADLINE / ASSERTION:
+    HEADLINE / CLAIM:
     {headline}
 
-    ARTICLE CONTENT:
+    ARTICLE BODY:
     {body[:3500]}
 
-    Return your audit strictly in a JSON code block using this exact schema:
+    Return your audit strictly in a JSON code block with this exact format:
     ```json
     {{
       "verdict": "<GENUINE FAKE SENSATIONALIZED |>",
@@ -406,26 +384,22 @@ def execute_grounded_forensics(headline, body, key):
       "factual_grounding_pct": <integer 0-100>,
       "rhetorical_distortion_pct": <integer 0-100>,
       "clickbait_sensationalism_pct": <integer 0-100>,
-      "verdict_summary": "<2-3 sentence clear explanation citing real-world verification findings>",
-      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. institution media of or publisher reporting this, verified>"],
+      "verdict_summary": "<2-3 sentence clear, easy to understand explanation of why this verdict was given>",
+      "real_world_sources_found": ["<Name Hindu ISRO Press Release, Reuters, The e.g. news of outlet, verified>"],
       "atomic_claims": [
         {{
-          "claim": "<Core 1 Claim>",
-          "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"
-        }},
-        {{
-          "claim": "<Core 2 Claim>",
+          "claim": "<Single article factual from statement>",
           "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"
         }}
       ],
-      "flagged_keywords": ["<manipulative or deceptive words if any, or empty list>"],
+      "flagged_keywords": ["<exaggerated or manipulative words found in text>"],
       "cognitive_fallacies": [
         {{
-          "name": "<Logical / Bias Fallacy Name, None clean if or>",
-          "description": "<Brief absence bias note of on or presence rhetorical>"
+          "name": "<Name Authority, Cherry-Picking Emotional False Manipulation, bias, e.g. of or trick>",
+          "description": "<Simple explanation how it of used was>"
         }}
       ],
-      "recommended_factcheck_query": "<4-6 word optimal search query to cross-reference this>"
+      "recommended_factcheck_query": "<4-6 word simple Google search to verify this story>"
     }}
     ```
     """
@@ -448,7 +422,7 @@ def execute_grounded_forensics(headline, body, key):
         end_idx = response_text.rfind('}')
         if start_idx != -1 and end_idx != -1:
             return json.loads(response_text[start_idx:end_idx+1])
-        raise ValueError("Invalid JSON format returned by neural core.")
+        raise ValueError("Invalid format returned by AI.")
 
 # Text Highlighting Helper
 def highlight_manipulative_phrases(text, phrases):
@@ -458,82 +432,81 @@ def highlight_manipulative_phrases(text, phrases):
         highlighted = pattern.sub(r'<span class="highlight-manipulation">\1</span>', highlighted)
     return highlighted
 
-# ----------------- SIDEBAR: REDESIGNED COMMAND HUB -----------------
+# ----------------- SIDEBAR: COMMAND CENTER -----------------
 with st.sidebar:
-    # Modern Glassmorphic Brand Card
     st.markdown("""
     <div class="sidebar-brand-hub">
         <div class="status-beacon">
             <div class="beacon-glow"></div>
-            Neural Core Online
+            System Active
         </div>
         <div style="font-size:20px; font-weight:800; color:#f8fafc; letter-spacing:-0.5px;">VeritasLens™</div>
-        <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Class 11 Computer Science</div>
+        <div style="font-size:12px; color:#94a3b8; margin-top:2px;">AI News & Fact Checker</div>
         <div style="font-size:11px; color:#38bdf8; font-weight:600; margin-top:4px;">🏫 Sree Gokulam Public School, Chengalpattu</div>
         <hr style="margin:14px 0; border:none; border-top:1px solid rgba(255,255,255,0.08);">
         <div style="font-size:12px; color:#e2e8f0;">
-            👑 <strong>Lead Architect:</strong> <span style="color:#818cf8; font-weight:700;">DHANVANTH CR</span>
+            👑 <strong>Lead Developer:</strong> <span style="color:#818cf8; font-weight:700;">DHANVANTH CR</span>
         </div>
         <div style="font-size:12px; color:#e2e8f0; margin-top:4px;">
-            🤝 <strong>Assistant Developer:</strong> <span style="color:#38bdf8; font-weight:700;">JANESH S</span>
+            🤝 <strong>Assistant:</strong> <span style="color:#38bdf8; font-weight:700;">JANESH S</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### ⚡ Live Telemetry Vectors")
+    st.markdown("### ⚡ How It Checks News")
     st.markdown("""
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:18px;">🌐</span>
             <div>
-                <strong style="color:#38bdf8; font-size:13px;">Live Web Grounding</strong><br>
-                <small style="color:#94a3b8;">Queries global news indexes in real time.</small>
+                <strong style="color:#38bdf8; font-size:13px;">Live Web Search</strong><br>
+                <small style="color:#94a3b8;">Checks if trusted news outlets reported this.</small>
             </div>
         </div>
     </div>
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:18px;">🧠</span>
+            <span style="font-size:18px;">🔍</span>
             <div>
-                <strong style="color:#818cf8; font-size:13px;">Neural Claim Entailment</strong><br>
-                <small style="color:#94a3b8;">Decomposes & validates atomic assertions.</small>
+                <strong style="color:#818cf8; font-size:13px;">Statement Checker</strong><br>
+                <small style="color:#94a3b8;">Breaks text into claims and tests each one.</small>
             </div>
         </div>
     </div>
     <div class="pipeline-node">
         <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:18px;">🎯</span>
+            <span style="font-size:18px;">🚩</span>
             <div>
-                <strong style="color:#c084fc; font-size:13px;">Cognitive Bias Radar</strong><br>
-                <small style="color:#94a3b8;">Exposes logical fallacies & clickbait.</small>
+                <strong style="color:#c084fc; font-size:13px;">Clickbait & Bias Filter</strong><br>
+                <small style="color:#94a3b8;">Catches emotional words and fake tricks.</small>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
     st.divider()
-    st.markdown("### 🧪 Instant Benchmarks")
+    st.markdown("### 🧪 Try Sample Stories")
     
-    if st.button("🛰️ Scenario 1: Space Science Wire", use_container_width=True):
+    if st.button("🛰️ 1. Real Space News", use_container_width=True):
         st.session_state.article_title = "ISRO successfully validates restart capability of cryogenic upper stage engine"
         st.session_state.article_body = "The Indian Space Research Organisation (ISRO) successfully conducted the qualification hot test of the CE-20 cryogenic engine at the Propulsion Complex in Mahendragiri, confirming all nominal parameters for upcoming heavy payload missions."
         st.rerun()
 
-    if st.button("🚨 Scenario 2: Medical Miracle Hoax", use_container_width=True):
+    if st.button("🚨 2. Fake Miracle Cure", use_container_width=True):
         st.session_state.article_title = "SHOCKING miracle cure hidden by corrupt doctors leaked online!"
         st.session_state.article_body = "URGENT! Corrupt medical cartels are in panic after a secret natural herb leaked online that instantly cures all cardiovascular diseases overnight. Billionaire elites are actively threatening doctors to ban this mind-blowing breakthrough from the public!"
         st.rerun()
 
-    if st.button("📢 Scenario 3: Clickbait Distortion", use_container_width=True):
+    if st.button("📢 3. Exaggerated Clickbait", use_container_width=True):
         st.session_state.article_title = "Mind-blowing tax change that will shock every citizen tomorrow morning"
         st.session_state.article_body = "The Ministry of Finance announced minor administrative adjustments to digital filing deadlines for quarterly returns, but financial bloggers claim this unexpected measure will wipe out personal savings accounts across the nation."
         st.rerun()
 
-# ----------------- MAIN UI WORKFLOW -----------------
+# ----------------- MAIN HEADER -----------------
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">🛡️ VeritasLens™ Intelligence Suite</div>
-    <div class="hero-subtitle">Autonomous Real-Time Forensic Claim Verification • Live Web Grounding • Cognitive Fallacy Radar</div>
+    <div class="hero-title">🛡️ VeritasLens™</div>
+    <div class="hero-subtitle">Smart AI News & Fact-Checker • Real-Time Web Search • Statement Breakdown</div>
     <div class="author-badge">
         <span>🏫 <strong>Sree Gokulam Public School, Chengalpattu</strong></span>
         <span>•</span>
@@ -544,39 +517,39 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Ingestion Modalities
+# Clean Tabs
 tab_url, tab_text, tab_file = st.tabs([
-    "🌐 Ingest via Live Web URL", 
-    "✍️ Direct Article / Claim Input", 
-    "📄 File Document Scanner (.txt)"
+    "🌐 Check via News Link (URL)", 
+    "✍️ Type or Paste Article", 
+    "📄 Upload Text File (.txt)"
 ])
 
 with tab_url:
     col_u1, col_u2 = st.columns([4.2, 1])
     with col_u1:
-        url_input = st.text_input("Enter Live News Article URL", placeholder="https://www.thehindu.com/news/... or BBC / NDTV / Reuters link", label_visibility="collapsed")
+        url_input = st.text_input("Enter News Article URL", placeholder="https://www.thehindu.com/... or BBC / NDTV / Reuters link", label_visibility="collapsed")
     with col_u2:
-        scrape_btn = st.button("Extract Article", use_container_width=True)
+        scrape_btn = st.button("Fetch Article", use_container_width=True)
 
     if scrape_btn and url_input:
-        with st.spinner("Extracting clean text and filtering DOM scripts/ads..."):
+        with st.spinner("Fetching article text and removing ads..."):
             scraped_title, scraped_body = scrape_article_data(url_input)
             if scraped_title and len(scraped_body) > 40:
                 st.session_state.article_title = scraped_title
                 st.session_state.article_body = scraped_body
-                st.success(f"Extracted: **{scraped_title}**")
+                st.success(f"Loaded: **{scraped_title}**")
                 st.rerun()
             else:
-                st.error("Could not extract clean text from this URL. Enter the text manually in Tab 2.")
+                st.error("Could not fetch text from this link. Try pasting the text manually in the next tab.")
 
 with tab_text:
-    headline_val = st.text_input("Claim / Article Headline", value=st.session_state.article_title, placeholder="Enter headline or primary assertion...")
-    body_val = st.text_area("Full Article Content", value=st.session_state.article_body, height=160, placeholder="Enter article content to audit...")
+    headline_val = st.text_input("Headline or Title", value=st.session_state.article_title, placeholder="Enter article headline...")
+    body_val = st.text_area("Article Content", value=st.session_state.article_body, height=160, placeholder="Paste or type full news text here...")
     st.session_state.article_title = headline_val
     st.session_state.article_body = body_val
 
 with tab_file:
-    uploaded_file = st.file_uploader("Upload a news text document (.txt)", type=["txt"])
+    uploaded_file = st.file_uploader("Upload article file (.txt)", type=["txt"])
     if uploaded_file is not None:
         stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
         file_text = stringio.read()
@@ -584,21 +557,21 @@ with tab_file:
         if lines:
             st.session_state.article_title = lines[0]
             st.session_state.article_body = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
-            st.success(f"Loaded: **{lines[0][:60]}...**")
+            st.success(f"File Loaded: **{lines[0][:60]}...**")
             st.rerun()
 
-# ----------------- AUDIT EXECUTION -----------------
+# ----------------- SCAN TRIGGER -----------------
 st.markdown("---")
-execute_audit = st.button("🚀 Execute Comprehensive Neural Forensic Audit", type="primary", use_container_width=True)
+execute_audit = st.button("🚀 Scan & Verify Article", type="primary", use_container_width=True)
 
 if execute_audit:
     current_body = st.session_state.article_body
     current_title = st.session_state.article_title
     
     if not current_body.strip():
-        st.error("⚠️ Please provide an article body or extract a valid URL first.")
+        st.error("⚠️ Please provide an article body or fetch a URL first.")
     else:
-        with st.spinner(f"Querying live web indexes and evaluating: '{current_title[:45]}...'"):
+        with st.spinner(f"Searching live news and verifying facts: '{current_title[:45]}...'"):
             start_time = time.time()
             styl_buzzwords, styl_clickbait = run_stylometric_nlp_scan(current_body)
             key_to_use = API_KEY if API_KEY else "LOCAL_FALLBACK"
@@ -607,15 +580,15 @@ if execute_audit:
                 try:
                     res = execute_grounded_forensics(current_title, current_body, key_to_use)
                 except Exception as err:
-                    st.warning(f"Live search fallback notice: {err}")
+                    st.warning(f"Live search notice: {err}")
                     res = {
                         "verdict": "SENSATIONALIZED",
                         "credibility_score": 60,
                         "factual_grounding_pct": 50,
                         "rhetorical_distortion_pct": 45,
                         "clickbait_sensationalism_pct": styl_clickbait,
-                        "verdict_summary": "Neural evaluation complete via local semantic parser.",
-                        "real_world_sources_found": ["Semantic Parser Baseline"],
+                        "verdict_summary": "Story scanned using local language analysis.",
+                        "real_world_sources_found": ["Local News Index"],
                         "atomic_claims": [{"claim": current_title[:80], "status": "UNVERIFIED"}],
                         "flagged_keywords": styl_buzzwords,
                         "cognitive_fallacies": [],
@@ -628,8 +601,8 @@ if execute_audit:
                     "factual_grounding_pct": 85,
                     "rhetorical_distortion_pct": 10,
                     "clickbait_sensationalism_pct": styl_clickbait,
-                    "verdict_summary": "Evaluated via local semantic heuristics (Add GEMINI_API_KEY to secrets for live Google grounding).",
-                    "real_world_sources_found": ["Local Knowledge Baseline"],
+                    "verdict_summary": "Article analyzed using internal knowledge base.",
+                    "real_world_sources_found": ["General Knowledge Baseline"],
                     "atomic_claims": [{"claim": current_title[:80], "status": "VERIFIED"}],
                     "flagged_keywords": styl_buzzwords,
                     "cognitive_fallacies": [],
@@ -641,7 +614,7 @@ if execute_audit:
             grounding = res.get("factual_grounding_pct", 50)
             distortion = res.get("rhetorical_distortion_pct", 50)
             clickbait = res.get("clickbait_sensationalism_pct", 50)
-            summary = res.get("verdict_summary", "Audit completed.")
+            summary = res.get("verdict_summary", "Analysis finished.")
             sources_found = res.get("real_world_sources_found", [])
             claims = res.get("atomic_claims", [])
             buzzwords = res.get("flagged_keywords", styl_buzzwords)
@@ -650,21 +623,21 @@ if execute_audit:
 
         st.markdown("---")
         
-        # 1. Dynamic Verdict Banner
+        # 1. Main Verdict Box
         if verdict == "GENUINE":
-            st.markdown(f'<div class="verdict-banner verdict-genuine">✅ AUDIT VERDICT: VERIFIED / AUTHENTIC CONTENT ({score}/100)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="verdict-banner verdict-genuine">✅ REAL & VERIFIED NEWS (Trust Score: {score}/100)</div>', unsafe_allow_html=True)
         elif verdict == "FAKE":
-            st.markdown(f'<div class="verdict-banner verdict-fake">🚨 AUDIT VERDICT: UNRELIABLE / FABRICATED CLAIM ({score}/100)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="verdict-banner verdict-fake">🚨 FAKE & UNRELIABLE STORY (Trust Score: {score}/100)</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="verdict-banner verdict-sensational">⚠️ AUDIT VERDICT: SENSATIONALIZED / HYPERBOLIC ({score}/100)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="verdict-banner verdict-sensational">⚠️ MISLEADING OR EXAGGERATED STORY (Trust Score: {score}/100)</div>', unsafe_allow_html=True)
 
-        # 2. Four Multi-Vector Telemetry Cards with Visual Gradient Meters
+        # 2. Four Easy-to-Understand Score Cards
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             st.markdown(f"""
             <div class="metric-hud-box">
                 <div class="metric-val">{score}%</div>
-                <div class="metric-lbl">Authenticity Index</div>
+                <div class="metric-lbl">Truth Score</div>
                 <div class="meter-bar-bg">
                     <div class="meter-bar-fill" style="width: {score}%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
                 </div>
@@ -674,7 +647,7 @@ if execute_audit:
             st.markdown(f"""
             <div class="metric-hud-box">
                 <div class="metric-val">{grounding}%</div>
-                <div class="metric-lbl">Factual Grounding</div>
+                <div class="metric-lbl">Real-World Proof</div>
                 <div class="meter-bar-bg">
                     <div class="meter-bar-fill" style="width: {grounding}%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
                 </div>
@@ -684,7 +657,7 @@ if execute_audit:
             st.markdown(f"""
             <div class="metric-hud-box">
                 <div class="metric-val">{distortion}%</div>
-                <div class="metric-lbl">Rhetorical Manipulation</div>
+                <div class="metric-lbl">Emotional Bias</div>
                 <div class="meter-bar-bg">
                     <div class="meter-bar-fill" style="width: {distortion}%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
                 </div>
@@ -694,7 +667,7 @@ if execute_audit:
             st.markdown(f"""
             <div class="metric-hud-box">
                 <div class="metric-val">{clickbait}%</div>
-                <div class="metric-lbl">Clickbait Load</div>
+                <div class="metric-lbl">Clickbait Level</div>
                 <div class="meter-bar-bg">
                     <div class="meter-bar-fill" style="width: {clickbait}%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
                 </div>
@@ -703,38 +676,39 @@ if execute_audit:
         
         st.write("---")
 
-        # 3. Two-Column Detailed Forensic Report
+        # 3. Two-Column Results
         col_left, col_right = st.columns([1.2, 0.8], gap="large")
         
         with col_left:
-            st.markdown('<div class="section-header">📋 Forensic Reasoning Summary</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">📋 Why This Verdict Was Given</div>', unsafe_allow_html=True)
             st.info(summary)
             
             if sources_found:
-                st.markdown('<div class="section-header">🌐 Corroborating Real-World Sources Identified</div>', unsafe_allow_html=True)
+                st.markdown('<div class="section-header">🌐 Real Sources & Outlets Found</div>', unsafe_allow_html=True)
                 for s in sources_found:
-                    st.markdown(f'<div class="source-item">📰 <strong>Verified Publisher/Record:</strong> {s}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="source-item">📰 <strong>Verified Publisher:</strong> {s}</div>', unsafe_allow_html=True)
             
-            st.markdown('<div class="section-header">🎯 Atomic Claim Decomposition & Entailment</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🔍 Statements Checked One by One</div>', unsafe_allow_html=True)
             if claims:
                 for c in claims:
                     status = c.get("status", "UNVERIFIED")
                     badge_color = "#10b981" if status == "VERIFIED" else "#ef4444" if status == "CONTRADICTED" else "#f59e0b"
+                    status_label = "VERIFIED" if status == "VERIFIED" else "FALSE" if status == "CONTRADICTED" else "UNPROVEN"
                     st.markdown(f"""
                     <div class="claim-item">
-                        <span style="color:{badge_color}; font-weight:800; font-size:12px; font-family:'JetBrains Mono';">[{status}]</span> {c.get('claim')}
+                        <span style="color:{badge_color}; font-weight:800; font-size:12px; font-family:'JetBrains Mono';">[{status_label}]</span> {c.get('claim')}
                     </div>
                     """, unsafe_allow_html=True)
                     
-            st.markdown('<div class="section-header">🔍 Flagged Content Markup</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🔍 Highlighted Article Text</div>', unsafe_allow_html=True)
             if buzzwords:
-                with st.expander("View Interactive Highlighted Text", expanded=True):
+                with st.expander("Click to view highlighted clickbait words", expanded=True):
                     st.markdown(highlight_manipulative_phrases(current_body, buzzwords), unsafe_allow_html=True)
             else:
-                st.success("Clean linguistic structure. Zero deceptive tokens highlighted in article body.")
+                st.success("Clean article text. No deceptive or exaggerated words found.")
 
         with col_right:
-            st.markdown('<div class="section-header">🧬 Cognitive Bias & Fallacy Radar</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🧠 Tricks & Biases Detected</div>', unsafe_allow_html=True)
             if fallacies and fallacies[0].get("name") != "None":
                 for f in fallacies:
                     st.markdown(f"""
@@ -744,55 +718,55 @@ if execute_audit:
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                st.success("✔️ No cognitive biases or logical fallacies detected. Adheres to journalistic standards.")
+                st.success("✔️ No emotional tricks or manipulative biases found.")
                 
-            st.markdown('<div class="section-header">🚩 Trigger Vocabulary Tokens</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🚩 Suspicious Words Found</div>', unsafe_allow_html=True)
             if buzzwords:
                 for b in buzzwords:
                     st.markdown(f'<span class="token-chip">⚠️ {b.upper()}</span>', unsafe_allow_html=True)
             else:
-                st.write("No suspicious tokens isolated.")
+                st.write("No suspicious words isolated.")
                 
             st.write("---")
-            st.markdown('<div class="section-header">🌐 Live Fact-Checking Indexes</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">🌐 Check on Official Fact-Check Sites</div>', unsafe_allow_html=True)
             
             factcheck_url = f"https://toolbox.google.com/factcheck/explorer/search/{requests.utils.quote(search_query)}"
-            st.link_button("🌐 Query Fact Check Verification Index", factcheck_url, use_container_width=True)
+            st.link_button("🌐 Open Google Fact Check Explorer", factcheck_url, use_container_width=True)
             
             news_url = f"https://news.google.com/search?q={requests.utils.quote(search_query)}"
-            st.link_button("📰 Cross-Reference Global Media", news_url, use_container_width=True)
+            st.link_button("📰 Search on Google News", news_url, use_container_width=True)
             
-            # Export Report Download Feature
+            # Export Report Download
             st.write("---")
-            st.markdown('<div class="section-header">📥 Export Forensic Audit Log</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">📥 Download Summary Report</div>', unsafe_allow_html=True)
             report_data = {
-                "system": "VeritasLens™ Intelligence Suite",
-                "institution": "Sree Gokulam Public School, Chengalpattu",
+                "system": "VeritasLens™ Smart AI News & Fact-Checker",
+                "school": "Sree Gokulam Public School, Chengalpattu",
                 "lead_developer": "DHANVANTH CR",
                 "assistant_developer": "JANESH S",
-                "timestamp": str(datetime.now()),
+                "scan_time": str(datetime.now()),
                 "headline": current_title,
                 "verdict": verdict,
-                "authenticity_score": score,
-                "factual_grounding": grounding,
-                "rhetorical_manipulation": distortion,
-                "clickbait_load": clickbait,
-                "summary": summary,
+                "truth_score": score,
+                "real_world_proof": grounding,
+                "emotional_bias": distortion,
+                "clickbait_level": clickbait,
+                "explanation": summary,
                 "verified_sources": sources_found,
-                "atomic_claims": claims
+                "statements_checked": claims
             }
             st.download_button(
-                label="📄 Download JSON Audit Record",
+                label="📄 Download Fact-Check Record (JSON)",
                 data=json.dumps(report_data, indent=2),
-                file_name=f"veritas_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                file_name=f"veritas_factcheck_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
                 mime="application/json",
                 use_container_width=True
             )
 
-# ----------------- SUBTLE CORNER TELEMETRY FOOTER -----------------
+# ----------------- FOOTER -----------------
 st.markdown("""
 <div class="neural-footer">
-    <div>VeritasLens™ Protocol • Class 11 CS Project | Created & Developed by <strong>DHANVANTH CR</strong>, Assisted by <strong>JANESH S</strong> | <strong>Sree Gokulam Public School, Chengalpattu</strong></div>
+    <div>VeritasLens™ • Class 11 CS Project | Created by <strong>DHANVANTH CR</strong>, Assisted by <strong>JANESH S</strong> | <strong>Sree Gokulam Public School, Chengalpattu</strong></div>
     <div class="subtle-badge">
         <span style="width:6px; height:6px; border-radius:50%; background-color:#38bdf8; display:inline-block;"></span>
         Grounded via Deep Neural Intelligence Core
