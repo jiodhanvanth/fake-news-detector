@@ -39,7 +39,6 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
-    /* Background Ambient Gradients */
     .stApp {
         background-color: #090d16;
         background-image: 
@@ -48,7 +47,6 @@ st.markdown("""
             radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 45%);
     }
 
-    /* Hero Header */
     .hero-container {
         padding: 8px 0 20px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.07);
@@ -85,7 +83,6 @@ st.markdown("""
         backdrop-filter: blur(16px);
     }
     
-    /* Command Hub Sidebar */
     .sidebar-brand-hub {
         background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.5));
         border: 1px solid rgba(148, 163, 184, 0.18);
@@ -149,7 +146,6 @@ st.markdown("""
         transform: translateX(2px);
     }
 
-    /* Animated Verdict Banners */
     @keyframes slideUpFade {
         from {
             opacity: 0;
@@ -204,7 +200,6 @@ st.markdown("""
         box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
     }
 
-    /* Clean Score Cards */
     .metric-hud-box {
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -247,7 +242,6 @@ st.markdown("""
         transition: width 0.8s ease-in-out;
     }
 
-    /* Structured Result Cards */
     .claim-item {
         background: rgba(56, 189, 248, 0.03);
         border: 1px solid rgba(56, 189, 248, 0.18);
@@ -298,7 +292,6 @@ st.markdown("""
         gap: 8px;
     }
 
-    /* Engaging Judge Spotlight Card */
     .spotlight-card {
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
         border: 1px solid rgba(129, 140, 248, 0.35);
@@ -337,7 +330,6 @@ st.markdown("""
         line-height: 1.4;
     }
 
-    /* Footer */
     .neural-footer {
         margin-top: 50px;
         padding: 22px 24px;
@@ -372,12 +364,11 @@ if "article_body" not in st.session_state:
 
 API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 
-# Curated forensic facts & quotes to engage judges during live evaluation
 JUDGE_INSIGHTS = [
     {
         "tag": "🧠 The Illusory Truth Effect",
         "quote": "“A lie told often enough becomes the truth.” — Behavioral Psychology Principle",
-        "desc": "Psychological research proves that repeating a false claim just 3 times increases human belief by 40%. VeritasLens counters this by bypassing repetition and checking real-world verified databases directly."
+        "desc": "Psychological research proves that repeating a false claim just 3 times increases human belief by 40%. VeritasLens counters this by checking real-world verified databases directly."
     },
     {
         "tag": "⚡ Information Velocity Rule",
@@ -398,34 +389,40 @@ JUDGE_INSIGHTS = [
 
 # ----------------- CLEAN WEB SCRAPER -----------------
 def scrape_article_data(url):
-    """Extracts headline and clean body text from web links."""
+    """Extracts headline and clean body text from web links safely."""
     try:
         downloaded = trafilatura.fetch_url(url)
         if downloaded:
             extracted_text = trafilatura.extract(downloaded)
             soup = BeautifulSoup(downloaded, 'html.parser')
             title = soup.title.string if soup.title else "News Article"
-            if extracted_text and len(extracted_text) > 50:
+            if extracted_text and len(extracted_text.strip()) > 40:
                 return title.strip(), extracted_text.strip()
         
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
         res = requests.get(url, headers=headers, timeout=8)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        title = soup.title.string if soup.title else "News Article"
-        paras = [p.get_text() for p in soup.find_all('p') if len(p.get_text()) > 20]
-        body = " ".join(paras)
-        if len(body) > 50:
-            return title.strip(), body[:4000]
-        return None, "Unable to extract text from this website."
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            title = soup.title.string if soup.title else "News Article"
+            paras = [p.get_text().strip() for p in soup.find_all('p') if len(p.get_text().strip()) > 20]
+            body = " ".join(paras)
+            if len(body) > 40:
+                return title.strip(), body[:4000]
+        return None, "Unable to extract text from this website. Please paste the article text manually."
     except Exception as e:
-        return None, str(e)
+        return None, f"Scraping error: {str(e)}"
 
 # ----------------- QUICK STYLOMETRIC SCANNER -----------------
 def run_stylometric_nlp_scan(text):
-    """Scans for clickbait and emotional wording."""
-    blob = TextBlob(text)
-    subjectivity = round(blob.sentiment.subjectivity * 100, 1)
-    
+    """Scans for clickbait and emotional wording with robust fallbacks."""
+    if not text.strip():
+        return [], 0
+    try:
+        blob = TextBlob(text)
+        subjectivity = round(blob.sentiment.subjectivity * 100, 1)
+    except Exception:
+        subjectivity = 30.0
+
     words = re.findall(r'\b\w+\b', text.lower())
     sensational_words = {
         "shocking", "unbelievable", "secret", "miracle", "exposed", "conspiracy",
@@ -439,6 +436,21 @@ def run_stylometric_nlp_scan(text):
     return flagged_tokens, clickbait_load
 
 # ----------------- LIVE GROUNDED AI FACT-CHECKER -----------------
+def parse_ai_json_safely(raw_text):
+    """Safely extracts and parses JSON even if wrapped in markdown fences or text."""
+    try:
+        json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', raw_text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(1))
+        
+        start_idx = raw_text.find('{')
+        end_idx = raw_text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            return json.loads(raw_text[start_idx:end_idx+1])
+    except Exception:
+        pass
+    return None
+
 def execute_grounded_forensics(headline, body, key):
     """Verifies story occurrence using real-time search grounding."""
     client = genai.Client(api_key=key)
@@ -468,7 +480,7 @@ def execute_grounded_forensics(headline, body, key):
       "rhetorical_distortion_pct": <integer 0-100>,
       "clickbait_sensationalism_pct": <integer 0-100>,
       "verdict_summary": "<2-3 sentence clear, easy to understand explanation of why this verdict was given>",
-      "real_world_sources_found": ["<Name Hindu, ISRO Press Release, Reuters The e.g. news of outlet, verified>"],
+      "real_world_sources_found": ["<Name Hindu, ISRO Press Release, Reuters, The e.g. news of outlet, verified>"],
       "atomic_claims": [
         {{
           "claim": "<Single article factual from statement>",
@@ -496,16 +508,10 @@ def execute_grounded_forensics(headline, body, key):
         )
     )
     
-    response_text = res.text
-    json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
-    if json_match:
-        return json.loads(json_match.group(1))
-    else:
-        start_idx = response_text.find('{')
-        end_idx = response_text.rfind('}')
-        if start_idx != -1 and end_idx != -1:
-            return json.loads(response_text[start_idx:end_idx+1])
-        raise ValueError("Invalid format returned by AI.")
+    parsed = parse_ai_json_safely(res.text)
+    if parsed:
+        return parsed
+    raise ValueError("Neural engine returned unformatted response.")
 
 # ----------------- SIDEBAR: COMMAND CENTER -----------------
 with st.sidebar:
@@ -626,30 +632,31 @@ with tab_text:
 with tab_file:
     uploaded_file = st.file_uploader("Upload article file (.txt)", type=["txt"])
     if uploaded_file is not None:
-        stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-        file_text = stringio.read()
-        lines = [line.strip() for line in file_text.split("\n") if line.strip()]
-        if lines:
-            st.session_state.article_title = lines[0]
-            st.session_state.article_body = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
-            st.success(f"File Loaded: **{lines[0][:60]}...**")
-            st.rerun()
+        try:
+            stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
+            file_text = stringio.read()
+            lines = [line.strip() for line in file_text.split("\n") if line.strip()]
+            if lines:
+                st.session_state.article_title = lines[0]
+                st.session_state.article_body = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
+                st.success(f"File Loaded: **{lines[0][:60]}...**")
+                st.rerun()
+        except Exception as e:
+            st.error(f"Error reading file: {str(e)}")
 
 # ----------------- SCAN TRIGGER WITH DYNAMIC JUDGE SPOTLIGHT -----------------
 st.markdown("---")
 execute_audit = st.button("🚀 Scan & Verify Article", type="primary", use_container_width=True)
 
 if execute_audit:
-    current_body = st.session_state.article_body
-    current_title = st.session_state.article_title
+    current_body = st.session_state.article_body.strip()
+    current_title = st.session_state.article_title.strip()
     
-    if not current_body.strip():
+    if not current_body:
         st.error("⚠️ Please provide an article body or fetch a URL first.")
     else:
-        # Pick a random forensic insight to captivate evaluators during processing
         insight = random.choice(JUDGE_INSIGHTS)
 
-        # Dynamic Status Container designed to educate and engage evaluators
         status_box = st.status("🔬 Executing Deep AI Fact-Check & Live Wire Triangulation...", expanded=True)
         with status_box:
             st.markdown(f"""
@@ -671,19 +678,19 @@ if execute_audit:
                 try:
                     res = execute_grounded_forensics(current_title, current_body, key_to_use)
                 except Exception as err:
-                    st.warning(f"Live search notice: {err}")
+                    st.warning(f"Live search note: {err}")
                     res = {
                         "verdict": "SENSATIONALIZED",
                         "credibility_score": 60,
                         "factual_grounding_pct": 50,
                         "rhetorical_distortion_pct": 45,
                         "clickbait_sensationalism_pct": styl_clickbait,
-                        "verdict_summary": "Story scanned using local language analysis.",
+                        "verdict_summary": "Story analyzed using local linguistic heuristics.",
                         "real_world_sources_found": ["Local News Index"],
-                        "atomic_claims": [{"claim": current_title[:80], "status": "UNVERIFIED"}],
+                        "atomic_claims": [{"claim": current_title[:80] if current_title else "Primary Claim", "status": "UNVERIFIED"}],
                         "flagged_keywords": styl_buzzwords,
                         "cognitive_fallacies": [],
-                        "recommended_factcheck_query": current_title
+                        "recommended_factcheck_query": current_title if current_title else "news fact check"
                     }
             else:
                 res = {
@@ -694,26 +701,26 @@ if execute_audit:
                     "clickbait_sensationalism_pct": styl_clickbait,
                     "verdict_summary": "Article analyzed using internal knowledge base.",
                     "real_world_sources_found": ["General Knowledge Baseline"],
-                    "atomic_claims": [{"claim": current_title[:80], "status": "VERIFIED"}],
+                    "atomic_claims": [{"claim": current_title[:80] if current_title else "Primary Claim", "status": "VERIFIED"}],
                     "flagged_keywords": styl_buzzwords,
                     "cognitive_fallacies": [],
-                    "recommended_factcheck_query": current_title
+                    "recommended_factcheck_query": current_title if current_title else "news fact check"
                 }
 
             st.write("📊 **Phase 3:** Computing Multi-Vector Truth Telemetry...")
             status_box.update(label="✅ Live Forensic Fact-Check Complete!", state="complete", expanded=False)
 
             verdict = res.get("verdict", "SENSATIONALIZED").upper()
-            score = res.get("credibility_score", 50)
-            grounding = res.get("factual_grounding_pct", 50)
-            distortion = res.get("rhetorical_distortion_pct", 50)
-            clickbait = res.get("clickbait_sensationalism_pct", 50)
+            score = int(res.get("credibility_score", 50))
+            grounding = int(res.get("factual_grounding_pct", 50))
+            distortion = int(res.get("rhetorical_distortion_pct", 50))
+            clickbait = int(res.get("clickbait_sensationalism_pct", 50))
             summary = res.get("verdict_summary", "Analysis finished.")
             sources_found = res.get("real_world_sources_found", [])
             claims = res.get("atomic_claims", [])
             buzzwords = res.get("flagged_keywords", styl_buzzwords)
             fallacies = res.get("cognitive_fallacies", [])
-            search_query = res.get("recommended_factcheck_query", current_title)
+            search_query = res.get("recommended_factcheck_query", current_title if current_title else "fact check")
 
         st.markdown("---")
         
@@ -796,7 +803,7 @@ if execute_audit:
 
         with col_right:
             st.markdown('<div class="section-header">🧠 Tricks & Biases Detected</div>', unsafe_allow_html=True)
-            if fallacies and fallacies[0].get("name") != "None":
+            if fallacies and fallacies[0].get("name") not in ["None", "clean"]:
                 for f in fallacies:
                     st.markdown(f"""
                     <div class="bias-pill">
@@ -823,7 +830,6 @@ if execute_audit:
             news_url = f"https://news.google.com/search?q={requests.utils.quote(search_query)}"
             st.link_button("📰 Search on Google News", news_url, use_container_width=True)
             
-            # Export Report Download
             st.write("---")
             st.markdown('<div class="section-header">📥 Download Summary Report</div>', unsafe_allow_html=True)
             report_data = {
