@@ -148,7 +148,18 @@ st.markdown("""
         transform: translateX(2px);
     }
 
-    /* Verdict Banners */
+    /* Animated Verdict Banners */
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
     .verdict-banner {
         padding: 24px 32px;
         border-radius: 20px;
@@ -158,24 +169,38 @@ st.markdown("""
         letter-spacing: 0.5px;
         margin-bottom: 24px;
         backdrop-filter: blur(20px);
+        animation: slideUpFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        position: relative;
+        overflow: hidden;
+    }
+    .verdict-banner::after {
+        content: "";
+        position: absolute;
+        top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        animation: sweep 4s infinite;
+    }
+    @keyframes sweep {
+        0% { left: -100%; }
+        50%, 100% { left: 150%; }
     }
     .verdict-genuine {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(5, 150, 105, 0.06));
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.08));
         border: 1px solid rgba(16, 185, 129, 0.45);
         color: #34d399;
-        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.18);
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
     }
     .verdict-fake {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(185, 28, 28, 0.06));
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(185, 28, 28, 0.08));
         border: 1px solid rgba(239, 68, 68, 0.45);
         color: #f87171;
-        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.18);
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.2);
     }
     .verdict-sensational {
-        background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(194, 65, 12, 0.06));
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(194, 65, 12, 0.08));
         border: 1px solid rgba(249, 115, 22, 0.45);
         color: #fb923c;
-        box-shadow: 0 10px 40px rgba(249, 115, 22, 0.18);
+        box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
     }
 
     /* Clean Score Cards */
@@ -187,6 +212,7 @@ st.markdown("""
         text-align: center;
         margin-bottom: 12px;
         transition: transform 0.25s ease, border-color 0.25s ease;
+        animation: slideUpFade 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .metric-hud-box:hover {
         border-color: rgba(255, 255, 255, 0.18);
@@ -260,13 +286,6 @@ st.markdown("""
         border: 1px solid rgba(239, 68, 68, 0.25);
         margin: 3px 6px 3px 0;
     }
-    .highlight-manipulation {
-        background-color: rgba(239, 68, 68, 0.25);
-        border-bottom: 2px solid #ef4444;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-weight: 600;
-    }
 
     .section-header {
         font-size: 18px;
@@ -276,6 +295,18 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 8px;
+    }
+
+    /* Tip Card during Wait */
+    .quote-box {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+        border-left: 4px solid #818cf8;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        font-size: 13px;
+        color: #cbd5e1;
     }
 
     /* Footer */
@@ -424,14 +455,6 @@ def execute_grounded_forensics(headline, body, key):
             return json.loads(response_text[start_idx:end_idx+1])
         raise ValueError("Invalid format returned by AI.")
 
-# Text Highlighting Helper
-def highlight_manipulative_phrases(text, phrases):
-    highlighted = text
-    for phrase in phrases:
-        pattern = re.compile(rf'\b({re.escape(phrase)})\b', re.IGNORECASE)
-        highlighted = pattern.sub(r'<span class="highlight-manipulation">\1</span>', highlighted)
-    return highlighted
-
 # ----------------- SIDEBAR: COMMAND CENTER -----------------
 with st.sidebar:
     st.markdown("""
@@ -560,7 +583,7 @@ with tab_file:
             st.success(f"File Loaded: **{lines[0][:60]}...**")
             st.rerun()
 
-# ----------------- SCAN TRIGGER -----------------
+# ----------------- SCAN TRIGGER WITH DYNAMIC QUOTES -----------------
 st.markdown("---")
 execute_audit = st.button("🚀 Scan & Verify Article", type="primary", use_container_width=True)
 
@@ -571,8 +594,24 @@ if execute_audit:
     if not current_body.strip():
         st.error("⚠️ Please provide an article body or fetch a URL first.")
     else:
-        with st.spinner(f"Searching live news and verifying facts: '{current_title[:45]}...'"):
-            start_time = time.time()
+        # Dynamic fact-checking wait container with media literacy tips
+        status_box = st.status("🔍 Deep AI Fact-Checking in Progress...", expanded=True)
+        with status_box:
+            st.write("🌐 **Step 1/3:** Searching live global news wires (ISRO, BBC, The Hindu, PIB, Reuters)...")
+            st.markdown("""
+            <div class="quote-box">
+                💡 <strong>Media Literacy Tip:</strong> <em>"Misinformation thrives on emotional urgency. If an article provokes intense anger or fear, pause before sharing."</em>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            time.sleep(1.0)
+            st.write("🧠 **Step 2/3:** Decomposing sentences into verifiable statements...")
+            st.markdown("""
+            <div class="quote-box">
+                🎯 <strong>Forensic Rule:</strong> <em>"Always practice 'Lateral Reading' — open separate tabs to verify if reputable national and global outlets report the same event."</em>
+            </div>
+            """, unsafe_allow_html=True)
+            
             styl_buzzwords, styl_clickbait = run_stylometric_nlp_scan(current_body)
             key_to_use = API_KEY if API_KEY else "LOCAL_FALLBACK"
             
@@ -609,6 +648,9 @@ if execute_audit:
                     "recommended_factcheck_query": current_title
                 }
 
+            st.write("📊 **Step 3/3:** Calculating Truth Score & Bias Matrix...")
+            status_box.update(label="✅ Fact-Check Complete!", state="complete", expanded=False)
+
             verdict = res.get("verdict", "SENSATIONALIZED").upper()
             score = res.get("credibility_score", 50)
             grounding = res.get("factual_grounding_pct", 50)
@@ -623,7 +665,7 @@ if execute_audit:
 
         st.markdown("---")
         
-        # 1. Main Verdict Box
+        # 1. Main Animated Verdict Box
         if verdict == "GENUINE":
             st.markdown(f'<div class="verdict-banner verdict-genuine">✅ REAL & VERIFIED NEWS (Trust Score: {score}/100)</div>', unsafe_allow_html=True)
         elif verdict == "FAKE":
@@ -631,7 +673,7 @@ if execute_audit:
         else:
             st.markdown(f'<div class="verdict-banner verdict-sensational">⚠️ MISLEADING OR EXAGGERATED STORY (Trust Score: {score}/100)</div>', unsafe_allow_html=True)
 
-        # 2. Four Easy-to-Understand Score Cards
+        # 2. Four Score Cards
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             st.markdown(f"""
@@ -699,13 +741,6 @@ if execute_audit:
                         <span style="color:{badge_color}; font-weight:800; font-size:12px; font-family:'JetBrains Mono';">[{status_label}]</span> {c.get('claim')}
                     </div>
                     """, unsafe_allow_html=True)
-                    
-            st.markdown('<div class="section-header">🔍 Highlighted Article Text</div>', unsafe_allow_html=True)
-            if buzzwords:
-                with st.expander("Click to view highlighted clickbait words", expanded=True):
-                    st.markdown(highlight_manipulative_phrases(current_body, buzzwords), unsafe_allow_html=True)
-            else:
-                st.success("Clean article text. No deceptive or exaggerated words found.")
 
         with col_right:
             st.markdown('<div class="section-header">🧠 Tricks & Biases Detected</div>', unsafe_allow_html=True)
