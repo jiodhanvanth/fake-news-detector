@@ -12,7 +12,6 @@ import streamlit as st
 import json
 import re
 import io
-import time
 import random
 from datetime import datetime
 import requests
@@ -387,41 +386,36 @@ JUDGE_INSIGHTS = [
     }
 ]
 
-# ----------------- CLEAN WEB SCRAPER -----------------
+# ----------------- FAST WEB SCRAPER (OPTIMIZED TIMEOUT) -----------------
 def scrape_article_data(url):
-    """Extracts headline and clean body text from web links safely."""
+    """Extracts headline and clean text safely with quick 4-second timeout."""
     try:
-        downloaded = trafilatura.fetch_url(url)
-        if downloaded:
-            extracted_text = trafilatura.extract(downloaded)
-            soup = BeautifulSoup(downloaded, 'html.parser')
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        res = requests.get(url, headers=headers, timeout=4)
+        if res.status_code == 200:
+            extracted_text = trafilatura.extract(res.text)
+            soup = BeautifulSoup(res.text, 'html.parser')
             title = soup.title.string if soup.title else "News Article"
             if extracted_text and len(extracted_text.strip()) > 40:
                 return title.strip(), extracted_text.strip()
-        
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        res = requests.get(url, headers=headers, timeout=8)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            title = soup.title.string if soup.title else "News Article"
             paras = [p.get_text().strip() for p in soup.find_all('p') if len(p.get_text().strip()) > 20]
             body = " ".join(paras)
             if len(body) > 40:
-                return title.strip(), body[:4000]
-        return None, "Unable to extract text from this website. Please paste the article text manually."
+                return title.strip(), body[:2000]
+        return None, "Unable to extract text. Please paste the article text manually."
     except Exception as e:
         return None, f"Scraping error: {str(e)}"
 
 # ----------------- QUICK STYLOMETRIC SCANNER -----------------
 def run_stylometric_nlp_scan(text):
-    """Scans for clickbait and emotional wording with robust fallbacks."""
+    """Instant regex and polarity scan."""
     if not text.strip():
         return [], 0
     try:
         blob = TextBlob(text)
         subjectivity = round(blob.sentiment.subjectivity * 100, 1)
     except Exception:
-        subjectivity = 30.0
+        subjectivity = 25.0
 
     words = re.findall(r'\b\w+\b', text.lower())
     sensational_words = {
@@ -435,14 +429,13 @@ def run_stylometric_nlp_scan(text):
     clickbait_load = min(100, int((len(flagged_tokens) * 18) + (len(caps_shouting) * 5) + (subjectivity * 0.3)))
     return flagged_tokens, clickbait_load
 
-# ----------------- LIVE GROUNDED AI FACT-CHECKER -----------------
+# ----------------- FAST AI FACT-CHECKER (SUB-15 SECONDS) -----------------
 def parse_ai_json_safely(raw_text):
-    """Safely extracts and parses JSON even if wrapped in markdown fences or text."""
+    """Safely extracts JSON from model text."""
     try:
         json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', raw_text, re.DOTALL)
         if json_match:
             return json.loads(json_match.group(1))
-        
         start_idx = raw_text.find('{')
         end_idx = raw_text.rfind('}')
         if start_idx != -1 and end_idx != -1:
@@ -452,49 +445,43 @@ def parse_ai_json_safely(raw_text):
     return None
 
 def execute_grounded_forensics(headline, body, key):
-    """Verifies story occurrence using real-time search grounding."""
+    """Queries live Google Search with optimized concise token constraints."""
     client = genai.Client(api_key=key)
     
-    prompt = f"""
-    You are VeritasLens Smart AI News Verifier.
-    You have live access to Google Search to fact-check the following news story.
+    # Send up to 1,500 characters to ensure sub-10 second search latency
+    trimmed_body = body[:1500]
     
-    INSTRUCTIONS:
-    1. Check if reputable news outlets (BBC, ISRO, The Hindu, Reuters, PIB, NASA, AP, etc.) have verified or documented this event.
-    2. If reputable sources confirm it, mark it as GENUINE with a high score (85-98).
-    3. If it is a debunked rumor, internet hoax, or medical myth, mark it as FAKE with a low score (5-30).
-    4. If based on real events but exaggerated with clickbait, mark it as SENSATIONALIZED (50-75).
+    prompt = f"""
+    You are VeritasLens Fast AI Fact-Checker.
+    Fact-check this story using Google Search.
+    
+    RULES:
+    1. Check if trusted news agencies (BBC, ISRO, The Hindu, Reuters, PIB, NASA) report this.
+    2. Real & verified -> GENUINE (Score: 85-98)
+    3. Hoax/Myth -> FAKE (Score: 5-30)
+    4. Exaggerated/Distorted -> SENSATIONALIZED (Score: 50-75)
+    5. Be brief. Max 3 atomic claims.
 
-    HEADLINE / CLAIM:
-    {headline}
+    HEADLINE: {headline}
+    CONTENT: {trimmed_body}
 
-    ARTICLE BODY:
-    {body[:3500]}
-
-    Return your audit strictly in a JSON code block with this exact format:
+    Respond strictly with this JSON format:
     ```json
     {{
       "verdict": "<GENUINE FAKE SENSATIONALIZED |>",
-      "credibility_score": <integer from 0 to 100>,
-      "factual_grounding_pct": <integer 0-100>,
-      "rhetorical_distortion_pct": <integer 0-100>,
-      "clickbait_sensationalism_pct": <integer 0-100>,
-      "verdict_summary": "<2-3 sentence clear, easy to understand explanation of why this verdict was given>",
-      "real_world_sources_found": ["<Name Hindu, ISRO Press Release, Reuters, The e.g. news of outlet, verified>"],
+      "credibility_score": <int 0-100>,
+      "factual_grounding_pct": <int 0-100>,
+      "rhetorical_distortion_pct": <int 0-100>,
+      "clickbait_sensationalism_pct": <int 0-100>,
+      "verdict_summary": "<Max 2 explaining sentences why>",
+      "real_world_sources_found": ["<Max 3 names publisher verified>"],
       "atomic_claims": [
-        {{
-          "claim": "<Single article factual from statement>",
-          "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"
-        }}
+        {{"claim": "<Statement 1>", "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"}},
+        {{"claim": "<Statement 2>", "status": "<VERIFIED CONTRADICTED UNVERIFIED |>"}}
       ],
-      "flagged_keywords": ["<exaggerated or manipulative words found in text>"],
-      "cognitive_fallacies": [
-        {{
-          "name": "<Name Authority, Cherry-Picking, Emotional False Manipulation bias, e.g. fallacy, of or trick>",
-          "description": "<Simple explanation how it of used was>"
-        }}
-      ],
-      "recommended_factcheck_query": "<4-6 word simple Google search to verify this story>"
+      "flagged_keywords": ["<words>"],
+      "cognitive_fallacies": [{{"name": "<Fallacy name>", "description": "<One line note>"}}],
+      "recommended_factcheck_query": "<3-5 word query>"
     }}
     ```
     """
@@ -504,14 +491,15 @@ def execute_grounded_forensics(headline, body, key):
         contents=prompt,
         config=types.GenerateContentConfig(
             tools=[{"google_search": {}}],
-            temperature=0.1
+            temperature=0.1,
+            max_output_tokens=650
         )
     )
     
     parsed = parse_ai_json_safely(res.text)
     if parsed:
         return parsed
-    raise ValueError("Neural engine returned unformatted response.")
+    raise ValueError("Failed to parse response format.")
 
 # ----------------- SIDEBAR: COMMAND CENTER -----------------
 with st.sidebar:
@@ -541,7 +529,7 @@ with st.sidebar:
             <span style="font-size:18px;">🌐</span>
             <div>
                 <strong style="color:#38bdf8; font-size:13px;">Live Web Search</strong><br>
-                <small style="color:#94a3b8;">Checks if trusted news outlets reported this.</small>
+                <small style="color:#94a3b8;">Queries global news wires in real time.</small>
             </div>
         </div>
     </div>
@@ -550,7 +538,7 @@ with st.sidebar:
             <span style="font-size:18px;">🔍</span>
             <div>
                 <strong style="color:#818cf8; font-size:13px;">Statement Checker</strong><br>
-                <small style="color:#94a3b8;">Breaks text into claims and tests each one.</small>
+                <small style="color:#94a3b8;">Breaks claims down line-by-line.</small>
             </div>
         </div>
     </div>
@@ -559,7 +547,7 @@ with st.sidebar:
             <span style="font-size:18px;">🚩</span>
             <div>
                 <strong style="color:#c084fc; font-size:13px;">Clickbait & Bias Filter</strong><br>
-                <small style="color:#94a3b8;">Catches emotional words and fake tricks.</small>
+                <small style="color:#94a3b8;">Catches emotional words and fallacies.</small>
             </div>
         </div>
     </div>
@@ -598,7 +586,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Clean Tabs
 tab_url, tab_text, tab_file = st.tabs([
     "🌐 Check via News Link (URL)", 
     "✍️ Type or Paste Article", 
@@ -613,12 +600,12 @@ with tab_url:
         scrape_btn = st.button("Fetch Article", use_container_width=True)
 
     if scrape_btn and url_input:
-        with st.spinner("Fetching article text and removing ads..."):
+        with st.spinner("Fetching article content..."):
             scraped_title, scraped_body = scrape_article_data(url_input)
-            if scraped_title and len(scraped_body) > 40:
+            if scraped_title and len(scraped_body) > 30:
                 st.session_state.article_title = scraped_title
                 st.session_state.article_body = scraped_body
-                st.success(f"Loaded: **{scraped_title}**")
+                st.success(f"Loaded: **{scraped_title[:75]}...**")
                 st.rerun()
             else:
                 st.error("Could not fetch text from this link. Try pasting the text manually in the next tab.")
@@ -657,7 +644,7 @@ if execute_audit:
     else:
         insight = random.choice(JUDGE_INSIGHTS)
 
-        status_box = st.status("🔬 Executing Deep AI Fact-Check & Live Wire Triangulation...", expanded=True)
+        status_box = st.status("🔬 Live Neural Search & Grounding...", expanded=True)
         with status_box:
             st.markdown(f"""
             <div class="spotlight-card">
@@ -667,9 +654,7 @@ if execute_audit:
             </div>
             """, unsafe_allow_html=True)
 
-            st.write("🌐 **Phase 1:** Searching live global records (ISRO, BBC, The Hindu, PIB, Reuters, NASA)...")
-            time.sleep(0.8)
-            st.write("🧠 **Phase 2:** Isolating atomic statements and testing contextual evidence entailment...")
+            st.write("🌐 Querying global wire indexes (PIB, Reuters, ISRO, BBC)...")
             
             styl_buzzwords, styl_clickbait = run_stylometric_nlp_scan(current_body)
             key_to_use = API_KEY if API_KEY else "LOCAL_FALLBACK"
@@ -678,7 +663,7 @@ if execute_audit:
                 try:
                     res = execute_grounded_forensics(current_title, current_body, key_to_use)
                 except Exception as err:
-                    st.warning(f"Live search note: {err}")
+                    st.warning(f"Live search notice: {err}")
                     res = {
                         "verdict": "SENSATIONALIZED",
                         "credibility_score": 60,
@@ -707,8 +692,7 @@ if execute_audit:
                     "recommended_factcheck_query": current_title if current_title else "news fact check"
                 }
 
-            st.write("📊 **Phase 3:** Computing Multi-Vector Truth Telemetry...")
-            status_box.update(label="✅ Live Forensic Fact-Check Complete!", state="complete", expanded=False)
+            status_box.update(label="✅ Live Verification Complete!", state="complete", expanded=False)
 
             verdict = res.get("verdict", "SENSATIONALIZED").upper()
             score = int(res.get("credibility_score", 50))
